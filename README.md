@@ -9,7 +9,11 @@ Next generation <b>Git</b> tooling.
 A simple command that allows you to <b>fetch</b>, <b>add</b>, <b>commit</b> and <b>push</b>.
 </p>
 
-**Features**:
-- Config files
-- Fast
-- Minimal dependencies
+<h2 align="center">❯ Features </h2>
+<h3 align="center">
+<ul>
+<p>Config files</p>
+<p>Fast</p>
+<p>Minimal dependencies</p>
+</p>
+</h3>
