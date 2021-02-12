@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/galaxy.png" alt="Git-Glitter" />
+  <img src="./assets/glitter.png" alt="Glitter" />
 </p>
 <h1 align="center">❯ Glitter</h1>
 <h3 align="center">
