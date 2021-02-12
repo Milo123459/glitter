@@ -1,10 +1,6 @@
-use std::path::Path;
-use logger;
-
+mod logger;
+mod get_and_parse;
 
 fn main() {
-    let does_exist = Path::new("./.glitterrc").exists();
-    if does_exist == false {
-
-    }
+    let config = get_and_parse::get_and_parse();
 }
