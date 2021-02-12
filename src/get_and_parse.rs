@@ -1,19 +1,19 @@
-use std::path::Path;
-use std::fs::File;
 use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::path::Path;
 use std::result::Result;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Arguments {
     case: String,
-    argument: i32
+    argument: i32,
 }
 #[derive(Deserialize, Debug)]
 pub struct GlitterRc {
     #[serde(default = "commit_msg")]
     commit_message: String,
     #[serde(default = "commit_msg_arguments")]
-    commit_message_arguments: Vec<Arguments>
+    commit_message_arguments: Vec<Arguments>,
 }
 
 pub fn get_and_parse() -> Result<GlitterRc, serde_json::Error> {
@@ -25,9 +25,12 @@ pub fn get_and_parse() -> Result<GlitterRc, serde_json::Error> {
 }
 
 fn commit_msg() -> String {
-    return String::from("$RAW_COMMIT_MSG")
+    String::from("$RAW_COMMIT_MSG")
 }
 
 fn commit_msg_arguments() -> Vec<Arguments> {
-    vec![Arguments { case: "pascal".to_owned(), argument: 0 }]
+    vec![Arguments {
+        case: "pascal".to_owned(),
+        argument: 0,
+    }]
 }
