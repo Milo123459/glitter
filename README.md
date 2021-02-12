@@ -12,8 +12,6 @@ A simple command that allows you to <b>fetch</b>, <b>add</b>, <b>commit</b> and 
 <h2 align="center">❯ Features </h2>
 <h3 align="center">
 <ul>
-<p>Config files</p>
-<p>Fast</p>
-<p>Minimal dependencies</p>
+<p>Config files, Fast, Minimal dependencies</p>
 </p>
 </h3>
