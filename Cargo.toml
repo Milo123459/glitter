@@ -1,7 +1,7 @@
 [package]
 name = "glitter"
 version = "0.1.0"
-authors = ["Milo123459 <milo5huntington@gmail.com>"]
+authors = ["Milo123459"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
