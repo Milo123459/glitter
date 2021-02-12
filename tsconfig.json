@@ -12,8 +12,7 @@
 		"allowSyntheticDefaultImports": true,
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
-		"resolveJsonModule": true,
-		"importHelpers": true
+		"resolveJsonModule": true
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
