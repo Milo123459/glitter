@@ -29,6 +29,5 @@ fn commit_msg() -> String {
 }
 
 fn commit_msg_arguments() -> Vec<Arguments> {
-    let vec = vec![Arguments { case: "pascal".to_owned(), argument: 0 }];
-    return vec;
+    vec![Arguments { case: "pascal".to_owned(), argument: 0 }]
 }
