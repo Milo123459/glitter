@@ -24,38 +24,38 @@ Firstly, lets create a `.glitterrc` - the configuration file for Glitter.
 The glitterrc is basically JSON but a fancy extension. If we want to make it so it automatically templates our commit message we can do it like so:
 ```json
 {
-    "commitMessage": "$1($2): $3+"
+    "commit_message": "$1($2): $3+"
 }
 ```
 and you can use it like so: `glitter push chore deps bump deps`, this would produce the message `chore(deps): bump deps`. As you probably understand, $ is the prefix of arguments, ie, you can do $1 for the first argument, $2 for the second, etc. The + basically means all arguments after the one you specify will be placed there. Lets say we want it to be `chore(Deps): bump deps` and it formats with that case. How? Easy. Lets add another key to our file:
 ```json
 {
     ...
-    "commitMessageArguments": {
-
-    }
+    "commit_message_arguments": []
 }
 ``` 
 inside this key we can then add the argument to configure, in this case, the 2nd one, let's add that.
 ```json
 {
     ...
-    "commitMessageArguments": {
-        "2": {
-
+    "commit_message_arguments": [
+        {
+            "argument": 2
         }
-    }
+    ]
 }
 ``` 
 and then, to configure the case, add the key `case` and watch the magic!
 ```json
 {
     ...
-    "commitMessageArguments": {
-        "2": {
-            case: "pascal"
+    "commit_message_arguments": [
+        {
+            "argument": 2,
+            "case": "pascal"
         }
-    }
+    ]
+    
 }
 ```
 Running `glitter push chore deps bump deps` would then give us the commit message of `chore(Deps): bump deps` 🎉!

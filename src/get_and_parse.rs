@@ -5,17 +5,19 @@ use std::result::Result;
 use crate::logger;
 
 #[derive(Serialize, Deserialize)]
+pub struct Arguments {
+    case: String,
+    argument: i32
+}
 pub struct GlitterRc {
-    commit_message: String
+    commit_message: String,
+    commit_message_arguments: Vec<Arguments>
 }
 
 pub fn get_and_parse() -> Result<GlitterRc, serde_json::Error> {
     let json_file_path = Path::new("./.glitterrc");
 
-    let file = match File::open(json_file_path) {
-        Err(_) => logger::error("File didn't open."),
-        _ => println!("something")
-    };
+    let file = File::open(json_file_path).expect("Error opening file");
 
     let config: GlitterRc = serde_json::from_reader(file).expect("Well that didn't work..");
     return config;
