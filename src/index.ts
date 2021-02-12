@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import chalk from 'chalk';
 import meow from 'meow';
 import terminalLink from 'terminal-link';
