@@ -41,7 +41,7 @@ inside this key we can then add the argument to configure, in this case, the 2nd
 {
     ...
     "commitMessageArguments": {
-        2: {
+        "2": {
 
         }
     }
@@ -52,7 +52,7 @@ and then, to configure the case, add the key `case` and watch the magic!
 {
     ...
     "commitMessageArguments": {
-        2: {
+        "2": {
             case: "pascal"
         }
     }
