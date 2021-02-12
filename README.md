@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">❯ Glitter</h1>
 <h3 align="center">
-Next generation <b>Git</b> tooling.
+Git tooling of the future.
 <h3>
 <h1></h1>
 
