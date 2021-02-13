@@ -12,20 +12,18 @@ fn help() {
 }
 
 fn push(config: GlitterRc, args: Vec<String>) {
+    if config.commit_message == "$RAW_COMMIT_MSG" {
+        logger::error("No template provided. A template has to be provided for Glitter to run the command push.");
+        std::process::exit(1);
+    }
     let splitted = config.commit_message.split('$').skip(1);
     let mut result = String::from(&config.commit_message);
     for val in splitted {
-        if !String::from(val).starts_with("RAW_GIT_PARAMS") {
-            let val_ = &args[val.split("").nth(1).unwrap().parse::<usize>().unwrap()];
-            result = result.replace(
-                &format!("${}", String::from(val).split("").collect::<Vec<_>>()[1]),
-                &val_,
-            );
-        } else {
-            result = args.join(" ");
-            logger::info("Using commit message provided. No template found.");
-            return;
-        }
+        let val_ = &args[val.split("").nth(1).unwrap().parse::<usize>().unwrap()];
+        result = result.replace(
+            &format!("${}", String::from(val).split("").collect::<Vec<_>>()[1]),
+            &val_,
+        );
     }
     println!("{}", result);
 }
