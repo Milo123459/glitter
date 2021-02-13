@@ -8,6 +8,7 @@ pub struct Arguments {
     pub case: Option<String>,
     pub argument: i32,
 }
+
 #[derive(Deserialize, Debug)]
 pub struct GlitterRc {
     #[serde(default = "commit_msg")]
