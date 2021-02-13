@@ -1,4 +1,3 @@
-#[allow(unused_functions)]
 pub fn error(input: &str) {
     println!("🌌 FATAL {}", input);
 }
