@@ -71,3 +71,6 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 3: are
 4: you
 ```
+
+## **Glitter is like real glitter, its messy, doesn't come off and gets in your hair, just like this package**
+- **Fionn**
