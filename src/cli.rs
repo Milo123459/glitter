@@ -1,12 +1,13 @@
 use std::io::Error;
 
 use crate::config::{Arguments, GlitterRc};
-use crate::logger::Logger;
 
 fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
     if config.commit_message == "$RAW_COMMIT_MSG" {
-        Logger::error("No template provided. A template has to be provided for Glitter to run the command push.");
-        std::process::exit(1);
+        return Err(anyhow::Error::new(Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "No template provided. A template has to be provided for Glitter to run the command push.",
+        )));
     }
 
     let splitted = config.commit_message.split('$').skip(1);
@@ -24,7 +25,7 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
         } else {
             let idx = val.split("").nth(1).unwrap().parse::<usize>().unwrap() - 1;
 
-            if &args.arguments.len() > &idx {
+            if &args.arguments.len() <= &idx {
                 return Err(anyhow::Error::new(Error::new(
                     std::io::ErrorKind::InvalidInput,
                     "Invalid Amount of parameters",
