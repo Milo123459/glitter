@@ -11,3 +11,26 @@ pub fn run(args: Arguments) -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use crate::{config::Arguments, run};
+
+    #[test]
+    fn runs_correctly() {
+        let args = Arguments {
+            action: "push".to_string(),
+            arguments: vec![
+                "test".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+            rc_path: PathBuf::from(".glitterrc"),
+        };
+
+        run(args).unwrap();
+    }
+}
