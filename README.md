@@ -9,7 +9,7 @@ Git tooling of the future.
 
 ## ❯ Features
 - Config files
-- Fast
+- Fast (very very fast)
 - Minimal dependencies
 
 ## ❯ ✋ What, how and why?
