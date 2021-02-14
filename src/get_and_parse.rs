@@ -12,3 +12,28 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
         Err(err) => Err(anyhow::Error::new(err)),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use crate::config::GlitterRc;
+
+    use super::parse;
+
+    #[test]
+    fn parse_correctly() {
+        assert_eq!(
+            parse(&PathBuf::from(".glitterrc")).unwrap(),
+            GlitterRc {
+                commit_message: "$1($2): $3+".to_string(),
+                commit_message_arguments: None
+            }
+        )
+    }
+
+    #[test]
+    fn non_existant_file() {
+        assert_eq!(parse(&PathBuf::from(".glitter")).is_err(), true)
+    }
+}
