@@ -2,6 +2,8 @@ use std::io::Error;
 
 use onig::Regex;
 
+use std::process::{Command, Stdio};
+
 use crate::config::{Arguments, GlitterRc};
 
 fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
@@ -50,8 +52,32 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
             .replace(&result, val_)
         }
     }
-
-    println!("{}", result);
+    println!("$ git add .");
+    Command::new("git")
+        .arg("add")
+        .arg(".")
+        .stdout(Stdio::piped())
+        .output()
+        .expect("`git add .` failed.");
+        println!("$ git add");
+    println!("$ git commit -m \"{}\"", result);
+    Command::new("git")
+        .arg("commit")
+        .arg("-m")
+        .arg(format!("\"{}\"", result))
+        .stdout(Stdio::piped())
+        .output()
+        .expect("`git commit` failed.");
+    Command::new("git")
+        .arg("pull")
+        .stdout(Stdio::piped())
+        .output()
+        .expect("`git pull` failed.");
+    Command::new("git")
+        .arg("push")
+        .stdout(Stdio::piped())
+        .output()
+        .expect("`git push` failed.");
     Ok(result)
 }
 
@@ -61,7 +87,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<String> 
         "push" => push(config, args),
         _ => Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
-            "Invalid action. Try `help`",
+            "Invalid action. Try `--help`",
         ))),
     }
 }
