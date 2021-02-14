@@ -2,7 +2,7 @@ use std::io::Error;
 
 use onig::Regex;
 
-use std::process::{Command, Stdio};
+use std::process::{Command};
 
 use crate::config::{Arguments, GlitterRc};
 
@@ -56,22 +56,19 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
     Command::new("git")
         .arg("add")
         .arg(".")
-        .stdout(Stdio::inherit())
-        .output()
+        .status()
         .expect("`git add .` failed.");
     println!("$ git commit -m \"{}\"", result);
     Command::new("git")
         .arg("commit")
         .arg("-m")
         .arg(&result)
-        .stdout(Stdio::inherit())
-        .output()
+        .status()
         .expect("`git commit` failed.");
     println!("$ git pull");
     Command::new("git")
         .arg("pull")
-        .stdout(Stdio::inherit())
-        .output()
+        .status()
         .expect("`git pull` failed.");
     println!("$ git push");
     Command::new("git")
