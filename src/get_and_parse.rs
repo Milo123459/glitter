@@ -3,7 +3,7 @@ use anyhow::Context;
 use std::fs::File;
 use std::path::PathBuf;
 
-pub fn get_and_parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
+pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
     let file = File::open(path.as_path())
         .with_context(|| format!("Could not read file `{}`", path.as_path().to_str().unwrap()))?;
 

@@ -4,7 +4,7 @@ impl Logger {
     pub fn error(input: &str) {
         println!("FATAL {}", input);
     }
-    
+
     pub fn info(input: &str) {
         println!("INFO {}", input);
     }
@@ -17,4 +17,3 @@ impl Logger {
         println!("SUCCESS {}", input);
     }
 }
-
