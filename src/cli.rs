@@ -67,11 +67,13 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
         .stdout(Stdio::inherit())
         .output()
         .expect("`git commit` failed.");
+    println!("$ git pull");
     Command::new("git")
         .arg("pull")
         .stdout(Stdio::inherit())
         .output()
         .expect("`git pull` failed.");
+    println!("$ git push");
     Command::new("git")
         .arg("push")
         .stdout(Stdio::inherit())
