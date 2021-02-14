@@ -10,11 +10,8 @@ use structopt::StructOpt;
 pub fn run() -> anyhow::Result<()> {
     let args = Arguments::from_args();
 
-    let config = get_and_parse::get_and_parse(&args.rc_path)?;
+    let config = get_and_parse::parse(&args.rc_path)?;
     match_cmds(args, config)?;
 
     Ok(())
 }
-
-#[derive(Debug)]
-pub struct CustomError(String);

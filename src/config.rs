@@ -7,10 +7,12 @@ fn commit_msg() -> String {
 
 #[derive(Serialize, Deserialize, Debug, StructOpt)]
 pub struct Arguments {
-    /// type
-    pub case: String,
-    /// arguments
-    pub argument: Vec<String>,
+    /// type of action. Current options are: `push`
+    pub action: String,
+
+    /// arguments to action
+    pub arguments: Vec<String>,
+
     /// path to glitterrc, default is ".glitterrc"
     #[structopt(parse(from_os_str), default_value = ".glitterrc", long)]
     pub rc_path: std::path::PathBuf,
