@@ -61,7 +61,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<String> 
         "push" => push(config, args),
         _ => Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
-            "Invalid action. Can only be `push`",
+            "Invalid action. Try `help`",
         ))),
     }
 }

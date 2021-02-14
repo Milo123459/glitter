@@ -13,7 +13,7 @@ pub struct Arguments {
     /// arguments to action
     pub arguments: Vec<String>,
 
-    /// path to glitterrc, default is ".glitterrc"
+    /// path to glitterrc
     #[structopt(parse(from_os_str), default_value = ".glitterrc", long)]
     pub rc_path: std::path::PathBuf,
 }
