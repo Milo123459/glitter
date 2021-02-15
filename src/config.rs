@@ -15,7 +15,7 @@ pub struct Arguments {
 
     /// path to glitterrc
     #[structopt(parse(from_os_str), default_value = ".glitterrc", long, visible_alias = "rc")]
-    pub rc_path: std::path::PathBuf,
+    pub rc_path: std::path::PathBuf
 }
 
 #[derive(Deserialize, Debug, PartialEq)]

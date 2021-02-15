@@ -7,10 +7,14 @@ Git tooling of the future.
 <h3>
 <h1></h1>
 
-## ❯ Features
+## ❯ 👀 Features
 - Config files
 - Fast (very very fast)
 - Minimal dependencies
+
+## ❯ 📚 Documentation
+
+Keep on scrolling! 😉
 
 ## ❯ ✋ What, how and why?
 
@@ -71,3 +75,15 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 3: are
 4: you
 ```
+
+## ❯ 📣 Available Cases
+
+- lower
+- upper
+- snake
+- screaming-snake
+- kebab
+- train
+- sentence
+- title
+- class

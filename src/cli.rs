@@ -48,17 +48,23 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             let mut val_ = (&args.arguments[idx]).clone();
             if let Some(ref args_) = config.commit_message_arguments {
                 for arg in args_.iter().as_ref() {
-                    if arg.argument == (idx as i32) {
+                    if arg.argument == ((idx + 1) as i32) {
+
                         if let Some(v) = arg.case.as_deref() {
                             // we do this to prevent binding errors
-                            let mut temp = val_.clone();
+                            let mut temp_val = val_.clone();
                             match v.to_lowercase().as_str() {
-                                "lower" => temp = temp.clone().to_lowercase(),
-                                "upper" => temp = temp.clone().to_uppercase(),
-                                "snake" => temp = temp.clone().to_snake_case(),
+                                "lower" => temp_val = temp_val.to_lowercase(),
+                                "upper" => temp_val = temp_val.to_uppercase(),
+                                "snake" => temp_val = temp_val.to_snake_case(),
+                                "screaming-snake" => temp_val = temp_val.to_screaming_snake_case(),
+                                "kebab" => temp_val = temp_val.to_kebab_case(),
+                                "train" => temp_val = temp_val.to_train_case(),
+                                "sentence" => temp_val = temp_val.to_sentence_case(),
+                                "title" => temp_val = temp_val.to_title_case(),
                                 _ => println!("Found invalid case `{}`", v)
                             }
-                            val_ = temp
+                            val_ = temp_val
                         }
                     }
                 }
@@ -71,7 +77,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             .replace(&result, &*val_)
         }
     }
-
+    println!("{}", result);
     Ok(result)
 }
 
