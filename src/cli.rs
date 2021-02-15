@@ -4,6 +4,8 @@ use onig::Regex;
 
 use std::process::{Command};
 
+use inflector;
+
 use crate::config::{Arguments, GlitterRc};
 
 fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
@@ -43,14 +45,33 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
                     "Invalid Amount of parameters",
                 )));
             }
-
-            let val_ = &*args.arguments[idx];
+            let mut val_ = (&args.arguments[idx]).clone();
+            if let Some(ref args_) = config.commit_message_arguments {
+                for arg in args_.iter().as_ref() {
+                    if arg.argument == (idx as i32) {
+                        if let Some(v) = arg.case.as_deref() {
+                            // we do this to prevent binding errors
+                            let mut temp = val_.clone();
+                            match v.to_lowercase().as_str() {
+                                "lower" => {
+                                    temp = temp.clone().to_lowercase();
+                                },
+                                "upper" => {
+                                    
+                                },
+                                _ => println!("Found invalid case `{}`", v)
+                            }
+                            val_ = temp
+                        }
+                    }
+                }
+            }
             
             result = Regex::new(&format!(
                 "\\${}(?!@)",
                 String::from(val).split("").collect::<Vec<_>>()[1]
             ))?
-            .replace(&result, val_)
+            .replace(&result, &*val_)
         }
     }
     println!("$ git add .");
