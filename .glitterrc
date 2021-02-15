@@ -1,9 +1,3 @@
 {
-    "commit_message": "$1: $2+",
-    "commit_message_arguments": [
-        {
-            "argument": 1,
-            "case": "snake"
-        }
-    ]
+    "commit_message": "$1: $2+"
 }
