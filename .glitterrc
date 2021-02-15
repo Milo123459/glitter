@@ -3,7 +3,7 @@
     "commit_message_arguments": [
         {
             "argument": 1,
-            "case": "upper"
+            "case": "snake"
         }
     ]
 }

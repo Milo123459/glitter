@@ -1,10 +1,9 @@
 use std::io::Error;
 
+use inflector::Inflector;
 use onig::Regex;
 
 use std::process::Command;
-
-use inflector;
 
 use crate::config::{Arguments, GlitterRc};
 
@@ -56,7 +55,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
                             match v.to_lowercase().as_str() {
                                 "lower" => temp = temp.clone().to_lowercase(),
                                 "upper" => temp = temp.clone().to_uppercase(),
-                                "snake" => temp = inflector::cases::snakecase::to_snake_case(&temp),
+                                "snake" => temp = temp.clone().to_snake_case(),
                                 _ => println!("Found invalid case `{}`", v)
                             }
                             val_ = temp
