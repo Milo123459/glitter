@@ -27,8 +27,4 @@ jobs:
       
       - uses: actions-rs/grcov@v0.1
       
-      - run: tree /home/user/build/
-      
       - uses: codecov/codecov-action@v1
-        with:
-          files: /home/user/build/lcov.info
