@@ -49,7 +49,6 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             if let Some(ref args_) = config.commit_message_arguments {
                 for arg in args_.iter().as_ref() {
                     if arg.argument == ((idx + 1) as i32) {
-
                         if let Some(v) = arg.case.as_deref() {
                             // we do this to prevent binding errors
                             let mut temp_val = val_.clone();
@@ -63,7 +62,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
                                 "sentence" => temp_val = temp_val.to_sentence_case(),
                                 "title" => temp_val = temp_val.to_title_case(),
                                 "pascal" => temp_val = temp_val.to_pascal_case(),
-                                _ => println!("Found invalid case `{}`", v)
+                                _ => println!("Found invalid case `{}`", v),
                             }
                             val_ = temp_val
                         }
