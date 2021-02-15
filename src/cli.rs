@@ -45,6 +45,7 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
             }
 
             let val_ = &*args.arguments[idx];
+            
             result = Regex::new(&format!(
                 "\\${}(?!@)",
                 String::from(val).split("").collect::<Vec<_>>()[1]
@@ -112,7 +113,8 @@ mod tests {
 
         let config = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
-            commit_message_arguments: None,
+            arguments: None,
+            commit_message_arguments: None
         };
 
         assert_eq!(push(config, args).unwrap(), "test(a): b c")
@@ -133,7 +135,8 @@ mod tests {
 
         let config = GlitterRc {
             commit_message: "$1($2): $3+ : $2 | $1+".to_string(),
-            commit_message_arguments: None,
+            arguments: None,
+            commit_message_arguments: None
         };
 
         assert_eq!(push(config, args).unwrap(), "test(a): b c : a | test a b c")
@@ -149,7 +152,8 @@ mod tests {
 
         let config = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
-            commit_message_arguments: None,
+            arguments: None,
+            commit_message_arguments: None
         };
 
         assert_eq!(push(config, args).is_err(), true)

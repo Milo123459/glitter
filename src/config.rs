@@ -19,10 +19,17 @@ pub struct Arguments {
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
+pub struct CommitMessageArguments {
+    pub argument: i32,
+    pub case: Option<String>
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
 pub struct GlitterRc {
     #[serde(default = "commit_msg")]
     pub commit_message: String,
-    pub commit_message_arguments: Option<Vec<Arguments>>,
+    pub arguments: Option<Vec<Arguments>>,
+    pub commit_message_arguments: Option<Vec<CommitMessageArguments>>
 }
 
 #[cfg(test)]

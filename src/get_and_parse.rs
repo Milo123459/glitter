@@ -27,6 +27,7 @@ mod tests {
             parse(&PathBuf::from(".glitterrc")).unwrap(),
             GlitterRc {
                 commit_message: "$1($2): $3+".to_string(),
+                arguments: None,
                 commit_message_arguments: None
             }
         )
