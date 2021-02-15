@@ -26,7 +26,7 @@ mod tests {
         assert_eq!(
             parse(&PathBuf::from(".glitterrc")).unwrap(),
             GlitterRc {
-                commit_message: "$1($2): $3+".to_string(),
+                commit_message: "$1: $2+".to_string(),
                 arguments: None,
                 commit_message_arguments: None
             }

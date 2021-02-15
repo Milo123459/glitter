@@ -2,13 +2,13 @@ use std::io::Error;
 
 use onig::Regex;
 
-use std::process::{Command};
+use std::process::Command;
 
 use inflector;
 
 use crate::config::{Arguments, GlitterRc};
 
-fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
+fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
     if config.commit_message == "$RAW_COMMIT_MSG" {
         return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
@@ -45,6 +45,7 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
                     "Invalid Amount of parameters",
                 )));
             }
+
             let mut val_ = (&args.arguments[idx]).clone();
             if let Some(ref args_) = config.commit_message_arguments {
                 for arg in args_.iter().as_ref() {
@@ -66,7 +67,7 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
                     }
                 }
             }
-            
+
             result = Regex::new(&format!(
                 "\\${}(?!@)",
                 String::from(val).split("").collect::<Vec<_>>()[1]
@@ -74,6 +75,13 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
             .replace(&result, &*val_)
         }
     }
+
+    Ok(result)
+}
+
+pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
+    let result = get_commit_message(config, args)?;
+
     println!("$ git add .");
     Command::new("git")
         .arg("add")
@@ -97,10 +105,11 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
         .arg("push")
         .status()
         .expect("`git push` failed.");
-    Ok(result)
+
+    Ok(())
 }
 
-pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<String> {
+pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
     match &*cmd.to_lowercase() {
         "push" => push(config, args),
@@ -117,7 +126,7 @@ mod tests {
 
     use crate::config::{Arguments, GlitterRc};
 
-    use super::push;
+    use super::get_commit_message;
 
     #[test]
     fn basic() {
@@ -135,10 +144,10 @@ mod tests {
         let config = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
-            commit_message_arguments: None
+            commit_message_arguments: None,
         };
 
-        assert_eq!(push(config, args).unwrap(), "test(a): b c")
+        assert_eq!(get_commit_message(config, args).unwrap(), "test(a): b c")
     }
 
     #[test]
@@ -157,10 +166,13 @@ mod tests {
         let config = GlitterRc {
             commit_message: "$1($2): $3+ : $2 | $1+".to_string(),
             arguments: None,
-            commit_message_arguments: None
+            commit_message_arguments: None,
         };
 
-        assert_eq!(push(config, args).unwrap(), "test(a): b c : a | test a b c")
+        assert_eq!(
+            get_commit_message(config, args).unwrap(),
+            "test(a): b c : a | test a b c"
+        )
     }
 
     #[test]
@@ -174,9 +186,9 @@ mod tests {
         let config = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
-            commit_message_arguments: None
+            commit_message_arguments: None,
         };
 
-        assert_eq!(push(config, args).is_err(), true)
+        assert_eq!(get_commit_message(config, args).is_err(), true)
     }
 }

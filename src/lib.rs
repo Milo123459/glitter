@@ -18,19 +18,21 @@ mod tests {
 
     use crate::{config::Arguments, run};
 
-    #[test]
-    fn runs_correctly() {
-        let args = Arguments {
-            action: "push".to_string(),
-            arguments: vec![
-                "test".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-                "c".to_string(),
-            ],
-            rc_path: PathBuf::from(".glitterrc"),
-        };
+    // we need a dry run thing in order to re-activate this
 
-        run(args).unwrap();
-    }
+    // #[test]
+    // fn runs_correctly() {
+    //     let args = Arguments {
+    //         action: "push".to_string(),
+    //         arguments: vec![
+    //             "test".to_string(),
+    //             "a".to_string(),
+    //             "b".to_string(),
+    //             "c".to_string(),
+    //         ],
+    //         rc_path: PathBuf::from(".glitterrc"),
+    //     };
+
+    //     run(args).unwrap();
+    // }
 }
