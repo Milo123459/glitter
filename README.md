@@ -87,3 +87,5 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 - sentence
 - title
 - class
+
+.. got a suggestion? Please make an issue!
