@@ -1,0 +1,24 @@
+name: CodeCov
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  codecov:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          components: llvm-tools-preview
+
+      - uses: Swatinem/fucov@v1
+
+      - uses: codecov/codecov-action@v1
+        with:
+          directory: coverage
