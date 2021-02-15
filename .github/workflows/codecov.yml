@@ -28,8 +28,6 @@ jobs:
       - run: tree -aI .git
       
       - uses: actions-rs/grcov@v0.1
-        with:
-          output-path: ./lcov.info
       - uses: codecov/codecov-action@v1
         with:
           files: ./lcov.info
