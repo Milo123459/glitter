@@ -13,16 +13,23 @@ pub struct Arguments {
     /// arguments to action
     pub arguments: Vec<String>,
 
-    /// path to glitterrc, default is ".glitterrc"
-    #[structopt(parse(from_os_str), default_value = ".glitterrc", long)]
+    /// path to glitterrc
+    #[structopt(parse(from_os_str), default_value = ".glitterrc", long, visible_alias = "rc")]
     pub rc_path: std::path::PathBuf,
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+pub struct CommitMessageArguments {
+    pub argument: i32,
+    pub case: Option<String>
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct GlitterRc {
     #[serde(default = "commit_msg")]
     pub commit_message: String,
-    pub commit_message_arguments: Option<Vec<Arguments>>,
+    pub arguments: Option<Vec<Arguments>>,
+    pub commit_message_arguments: Option<Vec<CommitMessageArguments>>
 }
 
 #[cfg(test)]

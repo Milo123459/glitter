@@ -2,6 +2,8 @@ use std::io::Error;
 
 use onig::Regex;
 
+use std::process::{Command};
+
 use crate::config::{Arguments, GlitterRc};
 
 fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
@@ -43,6 +45,7 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
             }
 
             let val_ = &*args.arguments[idx];
+            
             result = Regex::new(&format!(
                 "\\${}(?!@)",
                 String::from(val).split("").collect::<Vec<_>>()[1]
@@ -50,8 +53,29 @@ fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
             .replace(&result, val_)
         }
     }
-
-    println!("{}", result);
+    println!("$ git add .");
+    Command::new("git")
+        .arg("add")
+        .arg(".")
+        .status()
+        .expect("`git add .` failed.");
+    println!("$ git commit -m \"{}\"", result);
+    Command::new("git")
+        .arg("commit")
+        .arg("-m")
+        .arg(&result)
+        .status()
+        .expect("`git commit` failed.");
+    println!("$ git pull");
+    Command::new("git")
+        .arg("pull")
+        .status()
+        .expect("`git pull` failed.");
+    println!("$ git push");
+    Command::new("git")
+        .arg("push")
+        .status()
+        .expect("`git push` failed.");
     Ok(result)
 }
 
@@ -61,7 +85,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<String> 
         "push" => push(config, args),
         _ => Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
-            "Invalid action. Can only be `push`",
+            "Invalid action. Try `--help`",
         ))),
     }
 }
@@ -89,7 +113,8 @@ mod tests {
 
         let config = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
-            commit_message_arguments: None,
+            arguments: None,
+            commit_message_arguments: None
         };
 
         assert_eq!(push(config, args).unwrap(), "test(a): b c")
@@ -110,7 +135,8 @@ mod tests {
 
         let config = GlitterRc {
             commit_message: "$1($2): $3+ : $2 | $1+".to_string(),
-            commit_message_arguments: None,
+            arguments: None,
+            commit_message_arguments: None
         };
 
         assert_eq!(push(config, args).unwrap(), "test(a): b c : a | test a b c")
@@ -126,7 +152,8 @@ mod tests {
 
         let config = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
-            commit_message_arguments: None,
+            arguments: None,
+            commit_message_arguments: None
         };
 
         assert_eq!(push(config, args).is_err(), true)

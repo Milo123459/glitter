@@ -9,12 +9,12 @@ Git tooling of the future.
 
 ## ❯ Features
 - Config files
-- Fast
+- Fast (very very fast)
 - Minimal dependencies
 
 ## ❯ ✋ What, how and why?
 
-Glitter is a wrapper for Git essentially, allowing you to compress multiple commands into one. Glitter is written in **rust** which not only makes it fast but also efficient. We simply parse your `.glitterrc` and run a few git commands under the hood. Why? Simplicity. If you maintain a project, this is probably the thing for you. You can create a branch and execute commands once the branch is created. You can create templates for commit messages and do multiple things easily.
+Glitter is a wrapper for Git essentially, allowing you to compress multiple commands into one. Glitter is written in **rust** which not only makes it fast but also efficient. We simply parse your `.glitterrc` and run a few git commands under the hood. Why? Simplicity. If you maintain a project, this is probably the thing for you.
 ## ❯ 🎉 Get started
 
 We're so happy to see your interest in Glitter! Leave a ⭐ if you like Glitter!
@@ -71,6 +71,3 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 3: are
 4: you
 ```
-
-### **Glitter is like real glitter, it's messy, doesn't come off and gets in your hair, just like this package**
-**- Fionn** *obviously a joke totally*
