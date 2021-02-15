@@ -14,9 +14,9 @@ pub fn run(args: Arguments) -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
+    //use std::path::PathBuf;
 
-    use crate::{config::Arguments, run};
+    //use crate::{config::Arguments, run};
 
     // we need a dry run thing in order to re-activate this
 

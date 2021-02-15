@@ -54,12 +54,9 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
                             // we do this to prevent binding errors
                             let mut temp = val_.clone();
                             match v.to_lowercase().as_str() {
-                                "lower" => {
-                                    temp = temp.clone().to_lowercase();
-                                },
-                                "upper" => {
-                                    
-                                },
+                                "lower" => temp = temp.clone().to_lowercase(),
+                                "upper" => temp = temp.clone().to_uppercase(),
+                                "snake" => temp = inflector::cases::snakecase::to_snake_case(&temp),
                                 _ => println!("Found invalid case `{}`", v)
                             }
                             val_ = temp
