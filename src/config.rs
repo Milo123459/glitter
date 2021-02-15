@@ -7,7 +7,7 @@ fn commit_msg() -> String {
 
 #[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq)]
 pub struct Arguments {
-    /// type of action. Current options are: `push`
+    /// type of action.
     pub action: String,
 
     /// arguments to action

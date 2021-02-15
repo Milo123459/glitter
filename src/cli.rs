@@ -62,6 +62,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
                                 "train" => temp_val = temp_val.to_train_case(),
                                 "sentence" => temp_val = temp_val.to_sentence_case(),
                                 "title" => temp_val = temp_val.to_title_case(),
+                                "pascal" => temp_val = temp_val.to_pascal_case(),
                                 _ => println!("Found invalid case `{}`", v)
                             }
                             val_ = temp_val
