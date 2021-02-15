@@ -1,3 +1,2 @@
-output-type: lcov
-output-path: ./lcov.info
-prefix-dir: /home/user/build/
+output-type: xml
+output-path: ./lcov.xml
