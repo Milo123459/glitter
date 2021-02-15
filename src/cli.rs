@@ -167,6 +167,6 @@ mod tests {
             commit_message_arguments: None,
         };
 
-        assert_eq!(push(config, args).is_err(), true)
+        assert_eq!(get_commit_message(config, args).is_err(), true)
     }
 }
