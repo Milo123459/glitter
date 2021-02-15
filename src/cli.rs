@@ -78,7 +78,6 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             .replace(&result, &*val_)
         }
     }
-    println!("{}", result);
     Ok(result)
 }
 
