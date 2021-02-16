@@ -92,25 +92,39 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
     Ok(result)
 }
 
-pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
+pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
+    if dry {
+        println!("dry run, wont run git commands");
+    }
+
     let result = get_commit_message(config, args)?;
 
     println!("{} git add .", "$".green().bold());
-    Command::new("git").arg("add").arg(".").status()?;
+    if !dry {
+        Command::new("git").arg("add").arg(".").status()?;
+    }
+
     println!(
         "{} git commit -m \"{}\"",
         "$".green().bold(),
         result.underline()
     );
-    Command::new("git")
-        .arg("commit")
-        .arg("-m")
-        .arg(&result)
-        .status()?;
+
+    if !dry {
+        Command::new("git")
+            .arg("commit")
+            .arg("-m")
+            .arg(&result)
+            .status()?;
+    }
     println!("{} git pull", "$".green().bold());
-    Command::new("git").arg("pull").status()?;
+    if !dry {
+        Command::new("git").arg("pull").status()?;
+    }
     println!("{} git pull", "$".green().bold());
-    Command::new("git").arg("push").status()?;
+    if !dry {
+        Command::new("git").arg("push").status()?;
+    }
 
     Ok(())
 }
@@ -129,8 +143,10 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
 
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
+    let dry = args.clone().dry();
+
     match_patterns! { &*cmd.to_lowercase(), patterns,
-        "push" => push(config, args)?,
+        "push" => push(config, args, dry)?,
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
         _ => return Err(anyhow::Error::new(Error::new(
@@ -162,6 +178,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -184,6 +201,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -204,12 +222,14 @@ mod tests {
             action: "push".to_string(),
             arguments: vec!["test".to_string(), "a".to_string()],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let args_2 = Arguments {
             action: "push".to_string(),
             arguments: vec!["test".to_string()],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -234,6 +254,7 @@ mod tests {
             action: "push".to_string(),
             arguments: vec!["test".to_string(), "a".to_string()],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -257,6 +278,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -290,6 +312,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -309,6 +332,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -328,6 +352,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {

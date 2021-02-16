@@ -5,7 +5,7 @@ fn commit_msg() -> String {
     "$RAW_COMMIT_MSG".to_string()
 }
 
-#[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq, Clone)]
 pub struct Arguments {
     /// type of action. run the `action` action to see available actions.
     pub action: String,
@@ -21,6 +21,19 @@ pub struct Arguments {
         visible_alias = "rc"
     )]
     pub rc_path: std::path::PathBuf,
+
+    #[structopt(long, short)]
+    pub(crate) dry: Option<Option<bool>>,
+}
+
+impl Arguments {
+    pub fn dry(&self) -> bool {
+        match self.dry {
+            None => false,
+            Some(None) => true,
+            Some(Some(a)) => a,
+        }
+    }
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -56,6 +69,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -67,8 +81,31 @@ mod tests {
             }]),
         };
 
-        (args, config);
-
-        assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string())
+        assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
+        assert_eq!(
+            args,
+            Arguments {
+                action: "actions".to_string(),
+                arguments: vec![
+                    "test".to_string(),
+                    "a".to_string(),
+                    "b".to_string(),
+                    "c".to_string(),
+                ],
+                rc_path: PathBuf::new(),
+                dry: Some(Some(false)),
+            }
+        );
+        assert_eq!(
+            config,
+            GlitterRc {
+                commit_message: "$1($2): $3+".to_string(),
+                arguments: None,
+                commit_message_arguments: Some(vec![CommitMessageArguments {
+                    argument: 1,
+                    case: Some("snake".to_string()),
+                }]),
+            }
+        );
     }
 }
