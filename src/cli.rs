@@ -101,7 +101,11 @@ pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
         .arg(".")
         .status()
         .expect("`git add .` failed.");
-    println!("{} git commit -m \"{}\"", "$".green().bold(), result.underline());
+    println!(
+        "{} git commit -m \"{}\"",
+        "$".green().bold(),
+        result.underline()
+    );
     Command::new("git")
         .arg("commit")
         .arg("-m")
@@ -126,9 +130,10 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
     // this will sanitize the vec in a sense
     // the input usually has \" \" around the value we want so we remove it
     // we also filter out _ from the vec
-    let actions = input.into_iter()
-    .filter_map(|x| x.strip_prefix('"')?.strip_suffix('"'))
-    .collect::<Vec<_>>();
+    let actions = input
+        .into_iter()
+        .filter_map(|x| x.strip_prefix('"')?.strip_suffix('"'))
+        .collect::<Vec<_>>();
     println!("Actions available:\n{}", actions.join(", "));
     Ok(())
 }
