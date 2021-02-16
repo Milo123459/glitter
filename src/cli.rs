@@ -138,6 +138,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     match_patterns! { &*cmd.to_lowercase(), patterns,
         "push" => push(config, args)?,
         "action" => action(patterns)?,
+        "actions" => action(patterns)?,
         _ => return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
             "Invalid action. Try `--help`",
