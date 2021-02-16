@@ -39,7 +39,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             if rest.len() == 0 {
                 return Err(anyhow::Error::new(Error::new(
                     std::io::ErrorKind::InvalidInput,
-                    format!("Argument ${} was not provided", val),
+                    format!("Argument {} was not provided. Argument {} is a rest argument.", String::from(val).split("").collect::<Vec<_>>()[1], String::from(val).split("").collect::<Vec<_>>()[1]),
                 )));
             }
 
@@ -53,7 +53,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             if &args.arguments.len() <= &idx {
                 return Err(anyhow::Error::new(Error::new(
                     std::io::ErrorKind::InvalidInput,
-                    format!("Argument ${} was not provided", val),
+                    format!("Argument {} was not provided.", String::from(val).split("").collect::<Vec<_>>()[1]),
                 )));
             }
 
