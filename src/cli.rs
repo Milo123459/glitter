@@ -1,6 +1,9 @@
 use std::io::Error;
 
 use inflector::Inflector;
+
+use colored::*;
+
 use onig::Regex;
 
 use std::process::Command;
@@ -92,25 +95,25 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
 pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
     let result = get_commit_message(config, args)?;
 
-    println!("$ git add .");
+    println!("{} {}", "$".green().bold(), "git add .".bright_purple());
     Command::new("git")
         .arg("add")
         .arg(".")
         .status()
         .expect("`git add .` failed.");
-    println!("$ git commit -m \"{}\"", result);
+    println!("{} {} \"{}\"", "$".green().bold(), "git commit -m ".bright_purple(), result.bright_purple());
     Command::new("git")
         .arg("commit")
         .arg("-m")
         .arg(&result)
         .status()
         .expect("`git commit` failed.");
-    println!("$ git pull");
+    println!("{} {}", "$".green().bold(), "git pull".bright_purple());
     Command::new("git")
         .arg("pull")
         .status()
         .expect("`git pull` failed.");
-    println!("$ git push");
+    println!("{} {}", "$".green().bold(), "git push".bright_purple());
     Command::new("git")
         .arg("push")
         .status()
