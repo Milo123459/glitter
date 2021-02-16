@@ -40,4 +40,9 @@ mod tests {
     fn non_existant_file() {
         assert_eq!(parse(&PathBuf::from(".glitter")).is_err(), true)
     }
+
+    #[test]
+    fn broken_glitterrc() {
+        assert_eq!(parse(&PathBuf::from(".glitterrc.broken")).is_err(), true)
+    }
 }

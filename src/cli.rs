@@ -53,7 +53,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             if &args.arguments.len() <= &idx {
                 return Err(anyhow::Error::new(Error::new(
                     std::io::ErrorKind::InvalidInput,
-                    "Invalid Amount of parameters",
+                    format!("Argument ${} was not provided", val),
                 )));
             }
 
@@ -92,36 +92,39 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
     Ok(result)
 }
 
-pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
+pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
+    if dry {
+        println!("dry run, wont run git commands");
+    }
+
     let result = get_commit_message(config, args)?;
 
     println!("{} git add .", "$".green().bold());
-    Command::new("git")
-        .arg("add")
-        .arg(".")
-        .status()
-        .expect("`git add .` failed.");
+    if !dry {
+        Command::new("git").arg("add").arg(".").status()?;
+    }
+
     println!(
         "{} git commit -m \"{}\"",
         "$".green().bold(),
         result.underline()
     );
-    Command::new("git")
-        .arg("commit")
-        .arg("-m")
-        .arg(&result)
-        .status()
-        .expect("`git commit` failed.");
+
+    if !dry {
+        Command::new("git")
+            .arg("commit")
+            .arg("-m")
+            .arg(&result)
+            .status()?;
+    }
     println!("{} git pull", "$".green().bold());
-    Command::new("git")
-        .arg("pull")
-        .status()
-        .expect("`git pull` failed.");
+    if !dry {
+        Command::new("git").arg("pull").status()?;
+    }
     println!("{} git pull", "$".green().bold());
-    Command::new("git")
-        .arg("push")
-        .status()
-        .expect("`git push` failed.");
+    if !dry {
+        Command::new("git").arg("push").status()?;
+    }
 
     Ok(())
 }
@@ -140,8 +143,10 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
 
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
+    let dry = args.clone().dry();
+
     match_patterns! { &*cmd.to_lowercase(), patterns,
-        "push" => push(config, args)?,
+        "push" => push(config, args, dry)?,
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
         _ => return Err(anyhow::Error::new(Error::new(
@@ -154,9 +159,11 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use crate::cli::action;
+    use crate::match_cmds;
     use std::path::PathBuf;
 
-    use crate::config::{Arguments, GlitterRc};
+    use crate::config::{Arguments, CommitMessageArguments, GlitterRc};
 
     use super::get_commit_message;
 
@@ -171,6 +178,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -193,6 +201,7 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -213,6 +222,14 @@ mod tests {
             action: "push".to_string(),
             arguments: vec!["test".to_string(), "a".to_string()],
             rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
+        };
+
+        let args_2 = Arguments {
+            action: "push".to_string(),
+            arguments: vec!["test".to_string()],
+            rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -221,6 +238,129 @@ mod tests {
             commit_message_arguments: None,
         };
 
-        assert_eq!(get_commit_message(config, args).is_err(), true)
+        let config_2 = GlitterRc {
+            commit_message: "$1($2): $3+".to_string(),
+            arguments: None,
+            commit_message_arguments: None,
+        };
+
+        assert!(get_commit_message(config, args).is_err());
+        assert!(get_commit_message(config_2, args_2).is_err());
+    }
+
+    #[test]
+    fn no_commit_message_format() {
+        let args = Arguments {
+            action: "push".to_string(),
+            arguments: vec!["test".to_string(), "a".to_string()],
+            rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
+        };
+
+        let config = GlitterRc {
+            // "$RAW_COMMIT_MSG" is the default
+            commit_message: "$RAW_COMMIT_MSG".to_string(),
+            arguments: None,
+            commit_message_arguments: None,
+        };
+
+        assert!(get_commit_message(config, args).is_err())
+    }
+
+    #[test]
+    fn commit_message_arguments() {
+        let args = Arguments {
+            action: "push".to_string(),
+            arguments: vec![
+                "test a b d".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+            rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
+        };
+
+        let config = GlitterRc {
+            commit_message: "$1($2): $3+".to_string(),
+            arguments: None,
+            commit_message_arguments: Some(vec![CommitMessageArguments {
+                argument: 1,
+                case: Some("snake".to_string()),
+            }]),
+        };
+
+        assert_eq!(
+            get_commit_message(config, args).unwrap(),
+            "test_a_b_d(a): b c"
+        )
+    }
+
+    #[test]
+    fn test_action() {
+        assert!(action(vec!["test"]).is_ok())
+    }
+
+    #[test]
+    fn matching_cmds() {
+        let args = Arguments {
+            action: "action".to_string(),
+            arguments: vec![
+                "test".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+            rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
+        };
+
+        let config = GlitterRc {
+            commit_message: "$1($2): $3+".to_string(),
+            arguments: None,
+            commit_message_arguments: None,
+        };
+
+        assert!(match_cmds(args, config).is_ok());
+
+        let args = Arguments {
+            action: "actions".to_string(),
+            arguments: vec![
+                "test".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+            rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
+        };
+
+        let config = GlitterRc {
+            commit_message: "$1($2): $3+".to_string(),
+            arguments: None,
+            commit_message_arguments: None,
+        };
+
+        assert!(match_cmds(args, config).is_ok());
+
+        let args = Arguments {
+            action: "fasdafsfsa".to_string(),
+            arguments: vec![
+                "test".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+            rc_path: PathBuf::new(),
+            dry: Some(Some(false)),
+        };
+
+        let config = GlitterRc {
+            commit_message: "$1($2): $3+".to_string(),
+            arguments: None,
+            commit_message_arguments: None,
+        };
+
+        assert!(match_cmds(args, config).is_err());
     }
 }
