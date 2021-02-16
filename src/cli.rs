@@ -39,7 +39,7 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
             if rest.len() == 0 {
                 return Err(anyhow::Error::new(Error::new(
                     std::io::ErrorKind::InvalidInput,
-                    format!("Argument {} was not provided. Argument {} is a rest argument.", String::from(val).split("").collect::<Vec<_>>()[1], String::from(val).split("").collect::<Vec<_>>()[1]),
+                    format!("Argument {0} was not provided. Argument {0} is a rest argument.", String::from(val).split("").collect::<Vec<_>>()[1]),
                 )));
             }
 
@@ -94,11 +94,13 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
 
 pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
     if dry {
-        println!("dry run, wont run git commands");
+        println!("Dry run. Won't execute git commands.");
     }
 
     let result = get_commit_message(config, args)?;
-
+    if dry {
+        println!("Commit message: {}", result);
+    }
     println!("{} git add .", "$".green().bold());
     if !dry {
         Command::new("git").arg("add").arg(".").status()?;
