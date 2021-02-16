@@ -7,6 +7,15 @@ use std::process::Command;
 
 use crate::config::{Arguments, GlitterRc};
 
+macro_rules! match_patterns {
+    ($val:expr, $patterns_ident:ident, $($p:pat => $e:expr),*) => {
+      let $patterns_ident = vec![$(stringify!($p)),*];
+      match $val {
+        $($p => $e),*
+      }
+    }
+  }
+
 fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
     if config.commit_message == "$RAW_COMMIT_MSG" {
         return Err(anyhow::Error::new(Error::new(
@@ -110,15 +119,28 @@ pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
+    // this will sanitize the vec in a sense
+    // the input usually has \" \" around the value we want so we remove it
+    // we also filter out _ from the vec
+    let actions = input.into_iter()
+    .filter_map(|x| x.strip_prefix('"')?.strip_suffix('"'))
+    .collect::<Vec<_>>();
+    println!("Actions available:\n{}", actions.join(", "));
+    Ok(())
+}
+
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
-    match &*cmd.to_lowercase() {
+    match_patterns! { &*cmd.to_lowercase(), patterns,
         "push" => push(config, args),
-        _ => Err(anyhow::Error::new(Error::new(
+        "action" => action(patterns),
+        _ => return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
             "Invalid action. Try `--help`",
-        ))),
-    }
+        )))
+    };
+    Ok(())
 }
 
 #[cfg(test)]
