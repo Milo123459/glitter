@@ -1,2 +1,2 @@
-output-type: xml
-output-path: ./lcov.xml
+output-type: lcov
+output-path: ./lcov.info
