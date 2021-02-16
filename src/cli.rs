@@ -101,7 +101,7 @@ pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
         .arg(".")
         .status()
         .expect("`git add .` failed.");
-    println!("{} {} \"{}\"", "$".green().bold(), "git commit -m ".bright_purple(), result.bright_purple());
+    println!("{} {} \"{}\"", "$".green().bold(), "git commit -m".bright_purple(), result.bright_purple().underline());
     Command::new("git")
         .arg("commit")
         .arg("-m")
