@@ -67,8 +67,30 @@ mod tests {
             }]),
         };
 
-        (args, config);
-
-        assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string())
+        assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
+        assert_eq!(
+            args,
+            Arguments {
+                action: "actions".to_string(),
+                arguments: vec![
+                    "test".to_string(),
+                    "a".to_string(),
+                    "b".to_string(),
+                    "c".to_string(),
+                ],
+                rc_path: PathBuf::new(),
+            }
+        );
+        assert_eq!(
+            config,
+            GlitterRc {
+                commit_message: "$1($2): $3+".to_string(),
+                arguments: None,
+                commit_message_arguments: Some(vec![CommitMessageArguments {
+                    argument: 1,
+                    case: Some("snake".to_string()),
+                }]),
+            }
+        );
     }
 }
