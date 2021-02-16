@@ -95,25 +95,25 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
 pub fn push(config: GlitterRc, args: Arguments) -> anyhow::Result<()> {
     let result = get_commit_message(config, args)?;
 
-    println!("{} {}", "$".green().bold(), "git add .".bright_purple());
+    println!("{} git add .", "$".green().bold());
     Command::new("git")
         .arg("add")
         .arg(".")
         .status()
         .expect("`git add .` failed.");
-    println!("{} {} \"{}\"", "$".green().bold(), "git commit -m".bright_purple(), result.bright_purple().underline());
+    println!("{} git commit -m \"{}\"", "$".green().bold(), result.underline());
     Command::new("git")
         .arg("commit")
         .arg("-m")
         .arg(&result)
         .status()
         .expect("`git commit` failed.");
-    println!("{} {}", "$".green().bold(), "git pull".bright_purple());
+    println!("{} git pull", "$".green().bold());
     Command::new("git")
         .arg("pull")
         .status()
         .expect("`git pull` failed.");
-    println!("{} {}", "$".green().bold(), "git push".bright_purple());
+    println!("{} git pull", "$".green().bold());
     Command::new("git")
         .arg("push")
         .status()
