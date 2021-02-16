@@ -17,7 +17,7 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::config::GlitterRc;
+    use crate::config::{CommitMessageArguments, GlitterRc};
 
     use super::parse;
 
@@ -26,9 +26,12 @@ mod tests {
         assert_eq!(
             parse(&PathBuf::from(".glitterrc")).unwrap(),
             GlitterRc {
-                commit_message: "$1: $2+".to_string(),
+                commit_message: "$1: $2: $3+".to_string(),
                 arguments: None,
-                commit_message_arguments: None
+                commit_message_arguments: Some(vec![CommitMessageArguments {
+                    argument: 1,
+                    case: Some("snake".to_string())
+                }])
             }
         )
     }
