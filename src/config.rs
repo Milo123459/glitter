@@ -39,10 +39,36 @@ pub struct GlitterRc {
 
 #[cfg(test)]
 mod tests {
-    use super::commit_msg;
+    use std::path::PathBuf;
+
+    use super::{commit_msg, Arguments, CommitMessageArguments, GlitterRc};
 
     #[test]
     fn check_commit_message() {
+        // getting 100% using this trick as we kinda cant test structs that dont have impls
+
+        let args = Arguments {
+            action: "actions".to_string(),
+            arguments: vec![
+                "test".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+            rc_path: PathBuf::new(),
+        };
+
+        let config = GlitterRc {
+            commit_message: "$1($2): $3+".to_string(),
+            arguments: None,
+            commit_message_arguments: Some(vec![CommitMessageArguments {
+                argument: 1,
+                case: Some("snake".to_string()),
+            }]),
+        };
+
+        (args, config);
+
         assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string())
     }
 }
