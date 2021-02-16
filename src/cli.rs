@@ -121,7 +121,7 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
     if !dry {
         Command::new("git").arg("pull").status()?;
     }
-    println!("{} git pull", "$".green().bold());
+    println!("{} git push", "$".green().bold());
     if !dry {
         Command::new("git").arg("push").status()?;
     }
