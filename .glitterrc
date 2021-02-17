@@ -3,7 +3,12 @@
     "commit_message_arguments": [
         {
             "argument": 1,
-            "case": "snake"
+            "case": "snake",
+            "type_enums": [
+                "fix",
+                "feat",
+                "chore"
+            ]
         }
     ]
 }

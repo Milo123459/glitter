@@ -40,6 +40,7 @@ impl Arguments {
 pub struct CommitMessageArguments {
     pub argument: i32,
     pub case: Option<String>,
+    pub type_enums: Option<Vec<String>>
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -78,6 +79,7 @@ mod tests {
             commit_message_arguments: Some(vec![CommitMessageArguments {
                 argument: 1,
                 case: Some("snake".to_string()),
+                type_enums: Some(vec!["fix".to_owned(), "feat".to_owned(), "chore".to_owned()])
             }]),
         };
 
@@ -104,6 +106,7 @@ mod tests {
                 commit_message_arguments: Some(vec![CommitMessageArguments {
                     argument: 1,
                     case: Some("snake".to_string()),
+                    type_enums: Some(vec!["fix".to_owned(), "feat".to_owned(), "chore".to_owned()])
                 }]),
             }
         );

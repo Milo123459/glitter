@@ -17,7 +17,7 @@ Git tooling of the future.
 
 ## ❯ 📚 Documentation
 
-Keep on scrolling! 😉
+For proper docs, see [here](/docs/index.md)
 
 ## ❯ ✋ What, how and why?
 

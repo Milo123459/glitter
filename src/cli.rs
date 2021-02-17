@@ -87,7 +87,23 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
                     }
                 }
             }
-
+            if let Some(ref args_) = config.commit_message_arguments {
+                for arg in args_.iter().as_ref() {
+                    if arg.argument == ((idx + 1) as i32) {
+                        if let Some(v) = arg.type_enums.as_ref() {
+                            if !v.contains(&val_.to_owned()) {
+                                return Err(anyhow::Error::new(Error::new(
+                                    std::io::ErrorKind::InvalidInput,
+                                    format!(
+                                        "Argument {} did not have a valid type enum.",
+                                        String::from(val).split("").collect::<Vec<_>>()[1]
+                                    ),
+                                )));
+                            }
+                        }
+                    }
+                }
+            }
             result = Regex::new(&format!(
                 "\\${}(?!@)",
                 String::from(val).split("").collect::<Vec<_>>()[1]
@@ -295,6 +311,7 @@ mod tests {
             commit_message_arguments: Some(vec![CommitMessageArguments {
                 argument: 1,
                 case: Some("snake".to_string()),
+                type_enums: Some(vec!["fix".to_owned(), "feat".to_owned(), "chore".to_owned()])
             }]),
         };
 
