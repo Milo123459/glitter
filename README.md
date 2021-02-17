@@ -22,6 +22,25 @@ For proper docs, see [here](/docs/index.md)
 ## ❯ ✋ What, how and why?
 
 Glitter is a wrapper for Git essentially, allowing you to compress multiple commands into one. Glitter is written in **rust** which not only makes it fast but also efficient. We simply parse your `.glitterrc` and run a few git commands under the hood. Why? Simplicity. If you maintain a project, this is probably the thing for you.
+
+## ❯ 😀 Installation
+
+**Windows**
+
+[Scoop](https://scoop.sh)
+
+```
+scoop install glitter
+```
+
+**Linux/MacOS**
+
+[Homebrew](https://brew.sh)
+
+```
+brew install glitter
+```
+
 ## ❯ 🎉 Get started
 
 We're so happy to see your interest in Glitter! Leave a ⭐ if you like Glitter!
