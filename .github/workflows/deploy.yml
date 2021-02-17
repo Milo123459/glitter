@@ -72,7 +72,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup | Install LLVM
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+        run: sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
       - name: Setup | Rust
         uses: actions-rs/toolchain@v1
         with:
