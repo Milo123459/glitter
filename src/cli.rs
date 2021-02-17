@@ -296,17 +296,16 @@ mod tests {
         let args = Arguments {
             action: "push".to_string(),
             arguments: vec![
-                "test a b d".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-                "c".to_string(),
+                "feat".to_string(),
+                "test".to_string(),
+                "tests".to_string(),
             ],
             rc_path: PathBuf::new(),
             dry: Some(Some(false)),
         };
 
         let config = GlitterRc {
-            commit_message: "$1($2): $3+".to_string(),
+            commit_message: "$1: $2: $3+".to_string(),
             arguments: None,
             commit_message_arguments: Some(vec![CommitMessageArguments {
                 argument: 1,
@@ -317,7 +316,7 @@ mod tests {
 
         assert_eq!(
             get_commit_message(config, args).unwrap(),
-            "test_a_b_d(a): b c"
+            "feat: test: tests"
         )
     }
 

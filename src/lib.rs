@@ -23,8 +23,8 @@ mod tests {
         let args = Arguments {
             action: "push".to_string(),
             arguments: vec![
+                "feat".to_string(),
                 "test".to_string(),
-                "a".to_string(),
                 "b".to_string(),
                 "c".to_string(),
             ],
