@@ -1,14 +1,9 @@
-use std::io::Error;
-
-use inflector::Inflector;
-
-use colored::*;
-
-use onig::Regex;
-
-use std::process::Command;
-
 use crate::config::{Arguments, GlitterRc};
+use colored::*;
+use fancy_regex::Regex;
+use inflector::Inflector;
+use std::io::{stdin, Error};
+use std::process::Command;
 
 macro_rules! match_patterns {
     ($val:expr, $patterns_ident:ident, $($p:pat => $e:expr),*) => {
@@ -104,11 +99,49 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
                     }
                 }
             }
-            result = Regex::new(&format!(
-                "\\${}(?!@)",
+
+            if let Some(ref args_) = config.commit_message_arguments {
+                for arg in args_.iter().as_ref() {
+                    if arg.argument == ((idx + 1) as i32) {
+                        if let Some(v) = arg.type_enums.as_ref() {
+                            if !v.contains(&val_.to_owned()) {
+                                return Err(anyhow::Error::new(Error::new(
+                                    std::io::ErrorKind::InvalidInput,
+                                    format!(
+                                        "Argument {} did not have a valid type enum.",
+                                        String::from(val).split("").collect::<Vec<_>>()[1]
+                                    ),
+                                )));
+                            }
+                        }
+                    }
+                }
+            }
+
+            let captures = Regex::new(&format!(
+                "\\${}(?!\\+)",
                 String::from(val).split("").collect::<Vec<_>>()[1]
-            ))?
-            .replace(&result, &*val_)
+            ))?;
+
+            let res = result.clone();
+
+            // poor mans replace
+            for _ in 0..captures.captures_iter(&res).count() {
+                let res = result.clone();
+
+                let capture = captures
+                    // when we replace, the value changes, so we rerun the logic
+                    .captures_iter(&res)
+                    .collect::<Vec<_>>()
+                    // we dont use the loop index as since the new value excludes the previous match we dont need to
+                    .get(0)
+                    .unwrap()
+                    .as_ref()
+                    .unwrap()
+                    .get(0)
+                    .unwrap();
+                result.replace_range(capture.range(), &val_);
+            }
         }
     }
     Ok(result)
@@ -116,13 +149,20 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
 
 pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
     if dry {
-        println!("Dry run. Won't execute git commands.");
+        println!("{}", "Dry run. Won't execute git commands.".yellow());
     }
 
     let result = get_commit_message(config, args)?;
-    if dry {
-        println!("Commit message: {}", result);
+    if !dry {
+        println!(
+            "Commit message: {}. Is this correct? if not abort by pressing Ctrl+c",
+            result.on_bright_black()
+        );
+
+        let mut temp = String::new();
+        stdin().read_line(&mut temp)?;
     }
+
     println!("{} git add .", "$".green().bold());
     if !dry {
         Command::new("git").arg("add").arg(".").status()?;
