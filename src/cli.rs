@@ -295,11 +295,7 @@ mod tests {
     fn commit_message_arguments() {
         let args = Arguments {
             action: "push".to_string(),
-            arguments: vec![
-                "feat".to_string(),
-                "test".to_string(),
-                "tests".to_string(),
-            ],
+            arguments: vec!["feat".to_string(), "test".to_string(), "tests".to_string()],
             rc_path: PathBuf::new(),
             dry: Some(Some(false)),
         };
@@ -310,7 +306,11 @@ mod tests {
             commit_message_arguments: Some(vec![CommitMessageArguments {
                 argument: 1,
                 case: Some("snake".to_string()),
-                type_enums: Some(vec!["fix".to_owned(), "feat".to_owned(), "chore".to_owned()])
+                type_enums: Some(vec![
+                    "fix".to_owned(),
+                    "feat".to_owned(),
+                    "chore".to_owned(),
+                ]),
             }]),
         };
 

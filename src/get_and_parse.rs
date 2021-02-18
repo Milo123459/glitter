@@ -31,7 +31,11 @@ mod tests {
                 commit_message_arguments: Some(vec![CommitMessageArguments {
                     argument: 1,
                     case: Some("snake".to_string()),
-                    type_enums: Some(vec!["fix".to_owned(), "feat".to_owned(), "chore".to_owned()])
+                    type_enums: Some(vec![
+                        "fix".to_owned(),
+                        "feat".to_owned(),
+                        "chore".to_owned()
+                    ])
                 }])
             }
         )
