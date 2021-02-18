@@ -32,9 +32,10 @@ mod tests {
                     argument: 1,
                     case: Some("snake".to_string()),
                     type_enums: Some(vec![
-                        "fix".to_owned(),
-                        "feat".to_owned(),
-                        "chore".to_owned()
+                        "fix".to_string(),
+                        "feat".to_string(),
+                        "chore".to_string(),
+                        "refactor".to_string(),
                     ])
                 }])
             }
