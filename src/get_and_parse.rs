@@ -9,7 +9,7 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
 
     match serde_json::from_reader(file) {
         Ok(json) => Ok(json),
-        Err(err) => Err(anyhow::Error::new(err)),
+        Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),
     }
 }
 
