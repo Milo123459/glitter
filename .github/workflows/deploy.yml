@@ -70,6 +70,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup | Install llvm
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: sudo apt install llvm
       - name: Setup | Rust
         uses: actions-rs/toolchain@v1
         with:
