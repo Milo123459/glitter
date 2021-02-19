@@ -155,7 +155,7 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
     let result = get_commit_message(config, args)?;
     if !dry {
         println!(
-            "Commit message: {}. Is this correct? if not abort by pressing Ctrl+c",
+            "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
             result.on_bright_black()
         );
 
