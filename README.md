@@ -12,8 +12,9 @@ Git tooling of the future.
 
 ## ❯ 👀 Features
 - Config files
-- Fast (very very fast)
-- Minimal dependencies
+- Fast
+- Easy to use
+- Friendly errors
 
 ## ❯ 📚 Documentation
 
