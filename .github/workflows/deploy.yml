@@ -70,9 +70,6 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Setup | Install libonig5
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt install libonig5
       - name: Setup | Rust
         uses: actions-rs/toolchain@v1
         with:
