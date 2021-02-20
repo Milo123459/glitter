@@ -6,7 +6,7 @@ fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-
+// tests
 #[cfg(test)]
 mod tests {
     use super::main;

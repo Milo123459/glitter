@@ -149,16 +149,22 @@ fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<Stri
 
 pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
     if dry {
-        println!("{}", "Dry run. Won't execute git commands.".yellow());
+        println!(
+            "{} {} {}",
+            "Dry run.".yellow(),
+            "Won't".yellow().underline(),
+            "execute git commands.".yellow()
+        );
     }
 
     let result = get_commit_message(config, args)?;
     if !dry {
         println!(
             "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
-            result.on_bright_black()
+            result.on_bright_black().underline()
         );
-
+        // if they abort the process, this will error
+        // when they press enter / return, if it exists it will continue running
         let mut temp = String::new();
         stdin().read_line(&mut temp)?;
     }
@@ -206,10 +212,13 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
         .into_iter()
         .filter_map(|x| x.strip_prefix('"')?.strip_suffix('"'))
         .collect::<Vec<_>>();
-    println!("Actions available:\n{}", actions.join(", ").underline().bold());
+    println!(
+        "Actions available:\n{}",
+        actions.join(", ").underline().bold()
+    );
     Ok(())
 }
-
+// this is the function behind matching commands (as in actions)
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
     let dry = args.clone().dry();
@@ -225,7 +234,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     };
     Ok(())
 }
-
+// tests
 #[cfg(test)]
 mod tests {
     use crate::cli::action;

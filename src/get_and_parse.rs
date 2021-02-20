@@ -2,7 +2,7 @@ use crate::config::GlitterRc;
 use anyhow::Context;
 use std::fs::File;
 use std::path::PathBuf;
-
+// parse the config file
 pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
     let file = File::open(path.as_path())
         .with_context(|| format!("Could not read file `{}`", path.as_path().to_str().unwrap()))?;
@@ -12,7 +12,7 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
         Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),
     }
 }
-
+// tests
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

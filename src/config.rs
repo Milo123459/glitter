@@ -25,7 +25,7 @@ pub struct Arguments {
     #[structopt(long, short)]
     pub(crate) dry: Option<Option<bool>>,
 }
-
+// for the usage of --dry (shorthand, ie, without a value)
 impl Arguments {
     pub fn dry(&self) -> bool {
         match self.dry {
@@ -42,7 +42,7 @@ pub struct CommitMessageArguments {
     pub case: Option<String>,
     pub type_enums: Option<Vec<String>>,
 }
-
+// main struct for the GlitterRc with defaults
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct GlitterRc {
     #[serde(default = "commit_msg")]
