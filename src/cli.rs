@@ -4,7 +4,7 @@ use fancy_regex::Regex;
 use inflector::Inflector;
 use std::io::{stdin, Error};
 use std::process::Command;
-
+// this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
     ($val:expr, $patterns_ident:ident, $($p:pat => $e:expr),*) => {
       let $patterns_ident = vec![$(stringify!($p)),*];
@@ -208,7 +208,7 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
     let dry = args.clone().dry();
-
+    // custom macro for the patterns command, see line 196-206
     match_patterns! { &*cmd.to_lowercase(), patterns,
         "push" => push(config, args, dry)?,
         "action" => action(patterns)?,
