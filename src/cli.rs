@@ -163,8 +163,8 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
             "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
             result.on_bright_black().underline()
         );
-        // if they abort the process, this will error
-        // when they press enter / return, if it exists it will continue running
+        // if they abort the process (cmd+c / ctrl+c), this will error
+        // if they press enter the command will then start executing git commands
         let mut temp = String::new();
         stdin().read_line(&mut temp)?;
     }
