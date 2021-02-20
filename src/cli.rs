@@ -180,9 +180,9 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
     }
 
     println!(
-        "{} git commit -m \"{}\"",
+        "{} git commit -m {}",
         "$".green().bold(),
-        result.underline()
+        format!("{}{}{}", "`".green(), result.underline().green(), "`".green())
     );
 
     if !dry {
