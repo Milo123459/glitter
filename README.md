@@ -112,4 +112,7 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 - class
 - pascal
 
-.. got a suggestion? Please make an issue!
+.. got a suggestion? Please make a discussion.
+
+**INSTALLATION ERRORS** are to go in issues. Dramatic!
+
