@@ -99,6 +99,10 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 4: you
 ```
 
+> Why is it fast sometimes but not the next?
+
+**That's reliant on your internet connection.** - We are just running git commands under the hood. Git will be the thing taking it's sweet time.
+
 ## ❯ 📣 Available Cases
 
 - lower
