@@ -169,11 +169,6 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
         stdin().read_line(&mut temp)?;
     }
 
-    println!("{} git fetch", "$".green().bold());
-    if !dry {
-        Command::new("git").arg("fetch").status()?;
-    }
-
     println!("{} git add .", "$".green().bold());
     if !dry {
         Command::new("git").arg("add").arg(".").status()?;
