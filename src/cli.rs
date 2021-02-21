@@ -212,7 +212,7 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
         .into_iter()
         .filter_map(|x| x.strip_prefix('"')?.strip_suffix('"'))
         .collect::<Vec<_>>();
-    // log a nice message
+    // log a nice message displaying all the actions
     println!(
         "Actions available:\n{}",
         actions.join(", ").underline().bold()
