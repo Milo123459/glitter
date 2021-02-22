@@ -14,7 +14,7 @@ macro_rules! match_patterns {
     }
   }
 
-fn get_commit_message(config: GlitterRc, args: Arguments) -> anyhow::Result<String> {
+fn get_commit_message(config: &GlitterRc, args: Arguments) -> anyhow::Result<String> {
     if config.commit_message == "$RAW_COMMIT_MSG" {
         return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
@@ -157,7 +157,7 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
         );
     }
 
-    let result = get_commit_message(config, args)?;
+    let result = get_commit_message(&&config, args)?;
     if !dry {
         println!(
             "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
@@ -169,6 +169,16 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
         stdin().read_line(&mut temp)?;
     }
 
+
+    if let Some(v) = config.fetch {
+        if v == true {
+            println!("{} git fetch", "$".green().bold());
+            if !dry {
+                Command::new("git").arg("fetch").status()?;
+            }
+        }
+
+    }
     println!("{} git add .", "$".green().bold());
     if !dry {
         Command::new("git").arg("add").arg(".").status()?;
@@ -259,9 +269,10 @@ mod tests {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
-        assert_eq!(get_commit_message(config, args).unwrap(), "test(a): b c")
+        assert_eq!(get_commit_message(&config, args).unwrap(), "test(a): b c")
     }
 
     #[test]
@@ -282,10 +293,11 @@ mod tests {
             commit_message: "$1($2): $3+ : $2 | $1+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
         assert_eq!(
-            get_commit_message(config, args).unwrap(),
+            get_commit_message(&config, args).unwrap(),
             "test(a): b c : a | test a b c"
         )
     }
@@ -310,16 +322,18 @@ mod tests {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
         let config_2 = GlitterRc {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
-        assert!(get_commit_message(config, args).is_err());
-        assert!(get_commit_message(config_2, args_2).is_err());
+        assert!(get_commit_message(&config, args).is_err());
+        assert!(get_commit_message(&config_2, args_2).is_err());
     }
 
     #[test]
@@ -336,9 +350,10 @@ mod tests {
             commit_message: "$RAW_COMMIT_MSG".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
-        assert!(get_commit_message(config, args).is_err())
+        assert!(get_commit_message(&config, args).is_err())
     }
 
     #[test]
@@ -362,10 +377,11 @@ mod tests {
                     "chore".to_owned(),
                 ]),
             }]),
+            fetch: None
         };
 
         assert_eq!(
-            get_commit_message(config, args).unwrap(),
+            get_commit_message(&config, args).unwrap(),
             "feat: test: tests"
         )
     }
@@ -393,6 +409,7 @@ mod tests {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -413,6 +430,7 @@ mod tests {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -433,6 +451,7 @@ mod tests {
             commit_message: "$1($2): $3+".to_string(),
             arguments: None,
             commit_message_arguments: None,
+            fetch: None
         };
 
         assert!(match_cmds(args, config).is_err());

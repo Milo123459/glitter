@@ -17,6 +17,7 @@ If it is suffixed with a ? that means it is optional.
 ```
 commit_message?: String: The commit message template, use $<arg-idx> to get a specific arg and suffix with a + for a rest argument. 
 commit_message_arguments?: Arguments[]: The array of commit message arguments
+fetch: Bool: Execute git fetch in commands
 ```
 
 Structures referenced:

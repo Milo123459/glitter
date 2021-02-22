@@ -37,7 +37,8 @@ mod tests {
                         "chore".to_string(),
                         "refactor".to_string(),
                     ])
-                }])
+                }]),
+                fetch: None
             }
         )
     }
