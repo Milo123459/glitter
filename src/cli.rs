@@ -1,4 +1,4 @@
-use crate::config::{Arguments, GlitterRc};
+use crate::config::{Arguments, CustomTaskOptions, GlitterRc};
 use colored::*;
 use fancy_regex::Regex;
 use inflector::Inflector;
@@ -226,15 +226,74 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
     );
     Ok(())
 }
+
+pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
+    if args.arguments.first().is_some() {
+        match_patterns! { &*args.arguments.first().unwrap().to_lowercase(), patterns,
+            "list" => {
+                println!("hi")
+            },
+            "help" => {
+                let mut cmds: Vec<CustomTaskOptions> = vec![];
+                if let Some(v) = config.custom_tasks {
+                    cmds = v;
+                }
+                let actions = patterns
+                .into_iter()
+                .filter_map(|x| x.strip_prefix('"')?.strip_suffix('"'))
+                .collect::<Vec<_>>();
+                let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
+                println!(
+                    "Runnable commands:\n{}\nCustom tasks specified:\n{}",
+                    actions.join(", ").underline().bold(),
+                    cmd.join(", ").underline().bold()
+                );
+            },
+            _ => {
+                let mut cmds: Vec<CustomTaskOptions> = vec![];
+                let mut exec_cmds: Vec<CustomTaskOptions> = vec![];
+                if let Some(v) = config.custom_tasks {
+                    cmds = v.clone();
+                    exec_cmds = v;
+                };
+                let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
+                if cmd.into_iter().find(|s| *s == args.arguments.first().unwrap().to_lowercase()).is_some() == true {
+                    let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+                     for task in exec {
+                        let e = task.to_owned().unwrap();
+                        for cmd in e {
+                            let splitted = cmd.split(" ").collect::<Vec<&str>>();
+                            println!("{} {}", "$".green().bold(), cmd);
+                            if !dry {
+                                Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
+                            }
+
+                        }
+                    };
+                } else {
+                    return Err(anyhow::Error::new(Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "Invalid CC task & cc command.",
+                    )));
+                };
+            }
+
+        };
+    } else {
+        println!("Try `cc help`")
+    };
+    Ok(())
+}
 // this is the function behind matching commands (as in actions)
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
     let dry = args.clone().dry();
-    // custom macro for the patterns command, see line 196-206
+    // custom macro for the patterns command
     match_patterns! { &*cmd.to_lowercase(), patterns,
         "push" => push(config, args, dry)?,
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
+        "cc" => cc(config, args, dry)?,
         _ => return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
             "Invalid action. Try `--help`",
@@ -249,7 +308,7 @@ mod tests {
     use crate::match_cmds;
     use std::path::PathBuf;
 
-    use crate::config::{Arguments, CommitMessageArguments, GlitterRc};
+    use crate::config::{Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc};
 
     use super::get_commit_message;
 
@@ -272,6 +331,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert_eq!(get_commit_message(&config, args).unwrap(), "test(a): b c")
@@ -296,6 +359,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert_eq!(
@@ -325,6 +392,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         let config_2 = GlitterRc {
@@ -332,6 +403,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert!(get_commit_message(&config, args).is_err());
@@ -353,6 +428,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert!(get_commit_message(&config, args).is_err())
@@ -380,6 +459,10 @@ mod tests {
                 ]),
             }]),
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert_eq!(
@@ -412,6 +495,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -433,6 +520,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -454,6 +545,10 @@ mod tests {
             arguments: None,
             commit_message_arguments: None,
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert!(match_cmds(args, config).is_err());

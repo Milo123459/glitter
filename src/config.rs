@@ -42,6 +42,13 @@ pub struct CommitMessageArguments {
     pub case: Option<String>,
     pub type_enums: Option<Vec<String>>,
 }
+
+#[derive(Deserialize, Debug, PartialEq, Clone)]
+pub struct CustomTaskOptions {
+    pub name: String,
+    pub execute: Option<Vec<String>>,
+}
+
 // main struct for the GlitterRc with defaults
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct GlitterRc {
@@ -50,13 +57,14 @@ pub struct GlitterRc {
     pub arguments: Option<Vec<Arguments>>,
     pub commit_message_arguments: Option<Vec<CommitMessageArguments>>,
     pub fetch: Option<bool>,
+    pub custom_tasks: Option<Vec<CustomTaskOptions>>,
 }
 
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;
 
-    use super::{commit_msg, Arguments, CommitMessageArguments, GlitterRc};
+    use super::{commit_msg, Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc};
 
     #[test]
     fn check_commit_message() {
@@ -87,6 +95,10 @@ mod tests {
                 ]),
             }]),
             fetch: None,
+            custom_tasks: Some(vec![CustomTaskOptions {
+                name: "fmt".to_owned(),
+                execute: Some(vec!["cargo fmt".to_owned()]),
+            }]),
         };
 
         assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
@@ -118,7 +130,11 @@ mod tests {
                         "chore".to_owned()
                     ])
                 }]),
-                fetch: None
+                fetch: None,
+                custom_tasks: Some(vec![CustomTaskOptions {
+                    name: "fmt".to_owned(),
+                    execute: Some(vec!["cargo fmt".to_owned()])
+                }])
             }
         );
     }

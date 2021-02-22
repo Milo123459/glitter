@@ -11,5 +11,13 @@
                 "refactor"
             ]
         }
+    ],
+    "custom_tasks": [
+        {
+            "name": "fmt",
+            "execute": [
+                "cargo fmt"
+            ]
+        }
     ]
 }

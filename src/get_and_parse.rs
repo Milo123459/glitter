@@ -17,7 +17,7 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::config::{CommitMessageArguments, GlitterRc};
+    use crate::config::{CommitMessageArguments, CustomTaskOptions, GlitterRc};
 
     use super::parse;
 
@@ -38,7 +38,11 @@ mod tests {
                         "refactor".to_string(),
                     ])
                 }]),
-                fetch: None
+                fetch: None,
+                custom_tasks: Some(vec![CustomTaskOptions {
+                    name: "fmt".to_owned(),
+                    execute: Some(vec!["cargo fmt".to_owned()])
+                }])
             }
         )
     }
