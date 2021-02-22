@@ -49,7 +49,7 @@ pub struct GlitterRc {
     pub commit_message: String,
     pub arguments: Option<Vec<Arguments>>,
     pub commit_message_arguments: Option<Vec<CommitMessageArguments>>,
-    pub fetch: Option<bool>
+    pub fetch: Option<bool>,
 }
 
 #[cfg(test)]
@@ -86,7 +86,7 @@ mod tests {
                     "chore".to_owned(),
                 ]),
             }]),
-            fetch: None
+            fetch: None,
         };
 
         assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
