@@ -34,13 +34,9 @@ Glitter is a wrapper for Git essentially, allowing you to compress multiple comm
 scoop install glitter
 ```
 
-**Linux/MacOS**
+**Other**
 
-[Homebrew](https://brew.sh)
-
-```
-brew install glitter
-```
+Please build from source. Make sure to have rust installed.
 
 **🛑 Please report any bug reports in issues, I'll try and respond ASAP**
 
