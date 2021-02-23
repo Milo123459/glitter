@@ -70,9 +70,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Setup | Install llvm and build-essential
+      - name: Setup | Install llvm and build-essential and cmake
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt install llvm build-essential
+        run: sudo apt install llvm build-essential cmake
       - name: Setup | Rust
         uses: actions-rs/toolchain@v1
         with:
