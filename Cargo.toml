@@ -1,6 +1,6 @@
 [package]
 name = "glitter"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Milo123459"]
 edition = "2018"
 
