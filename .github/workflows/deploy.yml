@@ -6,6 +6,15 @@ on:
       - "v*"
 # check out starship/starship - inspired by there workflow
 jobs:
+  update_brew_formula:
+    name: Update Brew Formula
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1.6
+        with:
+          formula-name: glitter
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
   github_build:
     name: Build release binaries
     strategy:
