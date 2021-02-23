@@ -42,6 +42,8 @@ scoop install glitter
 brew install glitter
 ```
 
+**🛑 Please report any bug reports in issues!**
+
 ## ❯ 🎉 Get started
 
 We're so happy to see your interest in Glitter! Leave a ⭐ if you like Glitter!
