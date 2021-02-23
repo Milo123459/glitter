@@ -61,15 +61,6 @@ jobs:
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v2
-
-      # Cache files between builds
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup | Install llvm and build-essential, cmake, cmake-doc, snapd and ninja-build 
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt install llvm build-essential cmake cmake-doc ninja-build snapd
