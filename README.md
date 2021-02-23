@@ -42,7 +42,7 @@ scoop install glitter
 brew install glitter
 ```
 
-**🛑 Please report any bug reports in issues!**
+**🛑 Please report any bug reports in issues, I'll try and respond ASAP**
 
 ## ❯ 🎉 Get started
 
