@@ -70,9 +70,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Setup | Install llvm
+      - name: Setup | Install llvm and build-essential
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt install llvm execinfo
+        run: sudo apt install llvm build-essential
       - name: Setup | Rust
         uses: actions-rs/toolchain@v1
         with:
