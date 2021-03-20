@@ -40,7 +40,25 @@ scoop install glitter
 
 **Other**
 
-Please build from source. Make sure to have rust installed.
+Check the [releases](https://github.com/Milo123459/glitter/releases) and download the appropriate binary. Or build from source.
+
+To build from source run this:
+
+*You need rust installed!*
+
+```
+git clone https://github.com/Milo123459/glitter
+cd glitter
+cargo install --path .
+```
+
+To update:
+
+```
+cd glitter
+git pull
+cargo install --path .
+```
 
 **🛑 Please report any bug reports in issues, I'll try and respond ASAP**
 
