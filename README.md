@@ -7,6 +7,9 @@ Git tooling of the future.
 <h3>
 <h3 align="center">
     <img src="https://codecov.io/gh/Milo123459/glitter/branch/master/graph/badge.svg">
+    <a href="https://github.com/Milo123459/glitter/releases">
+    <img src="https://img.shields.io/github/downloads/Milo123459/glitter/total.svg">
+    </a>
 </h3>
 <h1></h1>
 
@@ -117,4 +120,3 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 .. got a suggestion? Please make a discussion.
 
 **INSTALLATION ERRORS** are to go in issues.
-
