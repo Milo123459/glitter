@@ -241,6 +241,7 @@ pub fn push(
         if let Some(br) = &branch {
             Command::new("git")
                 .arg("push")
+                .arg("origin")
                 .arg(br.to_lowercase().to_string())
                 .status()?;
         } else {
