@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v2
-      - name: Setup | Install llvm and build-essential, cmake, cmake-doc, snapd and ninja-build 
+      - name: Setup | Install llvm and build-essential, cmake, cmake-doc, snapd and ninja-build
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt install llvm build-essential cmake cmake-doc ninja-build snapd
       - name: Setup | Instal CC-Tool

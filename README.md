@@ -10,6 +10,8 @@ Git tooling of the future.
     <a href="https://github.com/Milo123459/glitter/releases">
     <img src="https://img.shields.io/github/downloads/Milo123459/glitter/total.svg">
     </a>
+    <img src="https://tokei.rs/b1/github/Milo123459/glitter?category=lines">
+    <img src="https://www.codefactor.io/repository/github/milo123459/glitter/badge">
 </h3>
 <h1></h1>
 
@@ -80,7 +82,7 @@ and you can use it like so: `glitter push chore deps bump deps`, this would prod
     ...
     "commit_message_arguments": []
 }
-``` 
+```
 inside this key we can then add the argument to configure, in this case, the 2nd one, let's add that.
 ```json
 {
@@ -91,7 +93,7 @@ inside this key we can then add the argument to configure, in this case, the 2nd
         }
     ]
 }
-``` 
+```
 and then, to configure the case, add the key `case` and watch the magic!
 ```json
 {
@@ -102,12 +104,12 @@ and then, to configure the case, add the key `case` and watch the magic!
             "case": "pascal"
         }
     ]
-    
+
 }
 ```
 Running `glitter push chore deps bump deps` would then give us the commit message of `chore(Deps): bump deps` 🎉!
 
-## ❯ 📷 FAQ 
+## ❯ 📷 FAQ
 
 > Does **"this hello"** count as 1 or 2 arguments?
 
