@@ -31,7 +31,7 @@ mod tests {
             rc_path: PathBuf::from(".glitterrc"),
             branch: Some(String::new()),
             dry: Some(Some(true)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         run(args).unwrap();

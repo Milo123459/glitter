@@ -152,7 +152,7 @@ pub fn push(
     args: Arguments,
     dry: bool,
     branch: Option<String>,
-    nh: bool,
+    nohost: bool,
 ) -> anyhow::Result<()> {
     if dry {
         println!(
@@ -205,7 +205,7 @@ pub fn push(
             .arg(&result)
             .status()?;
     }
-    if !nh {
+    if !nohost {
         if let Some(br) = &branch {
             println!(
                 "{} git pull origin {}",
@@ -217,7 +217,7 @@ pub fn push(
         }
     }
     if !dry {
-        if !nh {
+        if !nohost {
             if let Some(br) = &branch {
                 Command::new("git")
                     .arg("pull")
@@ -309,6 +309,12 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
                 let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
                 if cmd.into_iter().find(|s| *s == args.arguments.first().unwrap().to_lowercase()).is_some() == true {
                     let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+                    println!(
+                        "{} {} {}",
+                        "Dry run.".yellow(),
+                        "Won't".yellow().underline(),
+                        "execute commands specified.".yellow()
+                    );
                      for task in exec {
                         let e = task.to_owned().unwrap();
                         for cmd in e {
@@ -339,10 +345,10 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
     let dry = args.clone().dry();
     let branch = args.clone().branch;
-    let nh = args.clone().nh();
+    let nohost = args.clone().nohost();
     // custom macro for the patterns command
     match_patterns! { &*cmd.to_lowercase(), patterns,
-        "push" => push(config, args, dry, branch, nh)?,
+        "push" => push(config, args, dry, branch, nohost)?,
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
         "cc" => cc(config, args, dry)?,
@@ -377,7 +383,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -407,7 +413,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -435,7 +441,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let args_2 = Arguments {
@@ -444,7 +450,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -481,7 +487,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -507,7 +513,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -553,7 +559,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -580,7 +586,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -607,7 +613,7 @@ mod tests {
             rc_path: PathBuf::new(),
             branch: Some(String::new()),
             dry: Some(Some(false)),
-            nh: Some(Some(false)),
+            nohost: Some(Some(false)),
         };
 
         let config = GlitterRc {
