@@ -18,6 +18,7 @@ Git tooling of the future.
 - Fast
 - Easy to use
 - Friendly errors
+- Multi branch support
 
 ## ❯ 📚 Documentation
 
