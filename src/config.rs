@@ -27,11 +27,11 @@ pub struct Arguments {
     pub branch: Option<String>,
 
     /// dry run. aka don't run git commands
-    #[structopt(long, short, visible_alias = "d")]
+    #[structopt(long = "dry", short = "d")]
     pub(crate) dry: Option<Option<bool>>,
 
     /// if the branch is not on the hosted provider, call this
-    #[structopt(long, short, visible_alias = "nohost")]
+    #[structopt(long = "nohost", short = "nh")]
     pub(crate) nh: Option<Option<bool>>,
 }
 // for the usage of --dry, --nh (shorthand, ie, without a value)
