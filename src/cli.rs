@@ -340,6 +340,14 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
     };
     Ok(())
 }
+
+pub fn undo(dry: bool) -> anyhow::Result<()> {
+    println!("{} git reset --soft HEAD~1", "$".green().bold());
+    if !dry {
+        Command::new("git").arg("reset").arg("--soft").arg("HEAD~1").status()?;
+    }
+    Ok(())
+}
 // this is the function behind matching commands (as in actions)
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
@@ -352,6 +360,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
         "cc" => cc(config, args, dry)?,
+        "undo" => undo(dry)?,
         _ => return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
             "Invalid action. Try `--help`",
