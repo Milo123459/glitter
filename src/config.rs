@@ -31,7 +31,7 @@ pub struct Arguments {
     pub(crate) dry: Option<Option<bool>>,
 
     /// if the branch is not on the hosted provider, call this
-    #[structopt(long, short, visible_alias = "no-host")]
+    #[structopt(long, short, visible_alias = "nohost")]
     pub(crate) nh: Option<Option<bool>>,
 }
 // for the usage of --dry, --nh (shorthand, ie, without a value)
