@@ -24,7 +24,7 @@ Git tooling of the future.
 
 ## ❯ 📚 Documentation
 
-For proper docs, see [here](/docs/index.md)
+For proper docs, see [here](/docs/index.md), this also includes examples.
 
 ## ❯ ✋ What, how and why?
 
