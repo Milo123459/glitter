@@ -16,7 +16,8 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
                 commit_message: "$1+".to_owned(),
                 arguments: None,
                 custom_tasks: None,
-                commit_message_arguments: None
+                commit_message_arguments: None,
+                __default: Some(true)
             })
 
         }
@@ -53,7 +54,8 @@ mod tests {
                 custom_tasks: Some(vec![CustomTaskOptions {
                     name: "fmt".to_owned(),
                     execute: Some(vec!["cargo fmt".to_owned()])
-                }])
+                }]),
+                __default: None
             }
         )
     }
@@ -65,6 +67,6 @@ mod tests {
 
     #[test]
     fn broken_glitterrc() {
-        assert_eq!(parse(&PathBuf::from(".glitterrc.broken")).is_err(), true)
+        assert_eq!(parse(&PathBuf::from(".glitterrc.broken")).unwrap().__default.is_some(), true)
     }
 }

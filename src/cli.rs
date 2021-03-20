@@ -404,6 +404,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert_eq!(get_commit_message(&config, args).unwrap(), "test(a): b c")
@@ -434,6 +435,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert_eq!(
@@ -471,6 +473,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         let config_2 = GlitterRc {
@@ -482,6 +485,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert!(get_commit_message(&config, args).is_err());
@@ -509,6 +513,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert!(get_commit_message(&config, args).is_err())
@@ -542,6 +547,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert_eq!(
@@ -580,6 +586,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -607,6 +614,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -634,6 +642,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert!(match_cmds(args, config).is_err());

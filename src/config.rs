@@ -74,6 +74,7 @@ pub struct GlitterRc {
     pub commit_message_arguments: Option<Vec<CommitMessageArguments>>,
     pub fetch: Option<bool>,
     pub custom_tasks: Option<Vec<CustomTaskOptions>>,
+    pub __default: Option<bool>
 }
 
 #[cfg(test)]
@@ -117,6 +118,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
+            __default: None
         };
 
         assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
@@ -154,7 +156,8 @@ mod tests {
                 custom_tasks: Some(vec![CustomTaskOptions {
                     name: "fmt".to_owned(),
                     execute: Some(vec!["cargo fmt".to_owned()])
-                }])
+                }]),
+                __default: None
             }
         );
     }
