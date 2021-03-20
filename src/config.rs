@@ -22,13 +22,29 @@ pub struct Arguments {
     )]
     pub rc_path: std::path::PathBuf,
 
-    #[structopt(long, short)]
+    /// branch to use. if the branch is not on the hosted repo use -nh
+    #[structopt(long, visible_alias = "b")]
+    pub branch: Option<String>,
+
+    /// dry run. aka don't run git commands
+    #[structopt(long, short, visible_alias = "d")]
     pub(crate) dry: Option<Option<bool>>,
+
+    /// if the branch is not on the hosted provider, call this
+    #[structopt(long, short, visible_alias = "no-host")]
+    pub(crate) nh: Option<Option<bool>>,
 }
-// for the usage of --dry (shorthand, ie, without a value)
+// for the usage of --dry, --nh (shorthand, ie, without a value)
 impl Arguments {
     pub fn dry(&self) -> bool {
         match self.dry {
+            None => false,
+            Some(None) => true,
+            Some(Some(a)) => a,
+        }
+    }
+    pub fn nh(&self) -> bool {
+        match self.nh {
             None => false,
             Some(None) => true,
             Some(Some(a)) => a,
@@ -79,7 +95,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -113,7 +131,9 @@ mod tests {
                     "c".to_string(),
                 ],
                 rc_path: PathBuf::new(),
+                branch: Some(String::new()),
                 dry: Some(Some(false)),
+                nh: Some(Some(false))
             }
         );
         assert_eq!(

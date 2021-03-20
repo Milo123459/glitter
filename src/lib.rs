@@ -29,7 +29,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::from(".glitterrc"),
+            branch: Some(String::new()),
             dry: Some(Some(true)),
+            nh: Some(Some(false)),
         };
 
         run(args).unwrap();

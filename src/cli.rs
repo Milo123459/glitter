@@ -147,7 +147,13 @@ fn get_commit_message(config: &GlitterRc, args: Arguments) -> anyhow::Result<Str
     Ok(result)
 }
 
-pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
+pub fn push(
+    config: GlitterRc,
+    args: Arguments,
+    dry: bool,
+    branch: Option<String>,
+    nh: bool,
+) -> anyhow::Result<()> {
     if dry {
         println!(
             "{} {} {}",
@@ -168,8 +174,8 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
         let mut temp = String::new();
         stdin().read_line(&mut temp)?;
     }
-    if let Some(v) = config.fetch {
-        if v == true {
+    if let Some(fetch) = config.fetch {
+        if fetch == true {
             println!("{} git fetch", "$".green().bold());
             if !dry {
                 Command::new("git").arg("fetch").status()?;
@@ -199,13 +205,47 @@ pub fn push(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()>
             .arg(&result)
             .status()?;
     }
-    println!("{} git pull", "$".green().bold());
-    if !dry {
-        Command::new("git").arg("pull").status()?;
+    if !nh {
+        if let Some(br) = &branch {
+            println!(
+                "{} git pull origin {}",
+                "$".green().bold(),
+                br.to_string().green().underline()
+            );
+        } else {
+            println!("{} git pull", "$".green().bold())
+        }
     }
-    println!("{} git push", "$".green().bold());
     if !dry {
-        Command::new("git").arg("push").status()?;
+        if !nh {
+            if let Some(br) = &branch {
+                Command::new("git")
+                    .arg("pull")
+                    .arg("origin")
+                    .arg(br.to_lowercase().to_string())
+                    .status()?;
+            }
+            Command::new("git").arg("pull").status()?;
+        }
+    }
+    if let Some(br) = &branch {
+        println!(
+            "{} git push origin {}",
+            "$".green().bold(),
+            br.green().underline()
+        );
+    } else {
+        println!("{} git push", "$".green().bold());
+    }
+    if !dry {
+        if let Some(br) = &branch {
+            Command::new("git")
+                .arg("push")
+                .arg(br.to_lowercase().to_string())
+                .status()?;
+        } else {
+            Command::new("git").arg("push").status()?;
+        }
     }
 
     Ok(())
@@ -231,8 +271,17 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
     if args.arguments.first().is_some() {
         match_patterns! { &*args.arguments.first().unwrap().to_lowercase(), patterns,
             "list" => {
-                println!("hi")
+                let mut cmds: Vec<CustomTaskOptions> = vec![];
+                if let Some(v) = config.custom_tasks {
+                    cmds = v;
+                }
+                let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
+                println!(
+                    "Custom tasks specified:\n{}",
+                    cmd.join(", ").underline().bold()
+                );
             },
+
             "help" => {
                 let mut cmds: Vec<CustomTaskOptions> = vec![];
                 if let Some(v) = config.custom_tasks {
@@ -273,7 +322,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
                 } else {
                     return Err(anyhow::Error::new(Error::new(
                         std::io::ErrorKind::InvalidInput,
-                        "Invalid CC task & cc command.",
+                        "That is not a valid custom command / sub command.",
                     )));
                 };
             }
@@ -288,9 +337,11 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let cmd = &args.action;
     let dry = args.clone().dry();
+    let branch = args.clone().branch;
+    let nh = args.clone().nh();
     // custom macro for the patterns command
     match_patterns! { &*cmd.to_lowercase(), patterns,
-        "push" => push(config, args, dry)?,
+        "push" => push(config, args, dry, branch, nh)?,
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
         "cc" => cc(config, args, dry)?,
@@ -323,7 +374,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -351,7 +404,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -377,14 +432,18 @@ mod tests {
             action: "push".to_string(),
             arguments: vec!["test".to_string(), "a".to_string()],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let args_2 = Arguments {
             action: "push".to_string(),
             arguments: vec!["test".to_string()],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -419,7 +478,9 @@ mod tests {
             action: "push".to_string(),
             arguments: vec!["test".to_string(), "a".to_string()],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -443,7 +504,9 @@ mod tests {
             action: "push".to_string(),
             arguments: vec!["feat".to_string(), "test".to_string(), "tests".to_string()],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -487,7 +550,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -512,7 +577,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -537,7 +604,9 @@ mod tests {
                 "c".to_string(),
             ],
             rc_path: PathBuf::new(),
+            branch: Some(String::new()),
             dry: Some(Some(false)),
+            nh: Some(Some(false)),
         };
 
         let config = GlitterRc {
