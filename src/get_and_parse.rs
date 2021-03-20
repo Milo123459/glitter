@@ -36,6 +36,7 @@ mod tests {
                         "feat".to_string(),
                         "chore".to_string(),
                         "refactor".to_string(),
+                        "docs".to_string()
                     ])
                 }]),
                 fetch: None,
