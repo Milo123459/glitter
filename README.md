@@ -40,6 +40,15 @@ Glitter is a wrapper for Git essentially, allowing you to compress multiple comm
 scoop install glitter
 ```
 
+**MacOS**
+
+[Brew](https://brew.sh)
+
+```
+brew tap eternalmoon1234/brew
+brew install glitter
+```
+
 **Other**
 
 Check the [releases](https://github.com/Milo123459/glitter/releases) and download the appropriate binary. Or build from source.
