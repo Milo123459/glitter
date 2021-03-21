@@ -379,7 +379,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
         "undo" => undo(dry)?,
         _ => return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
-            "Invalid action. Try `--help`",
+            "Invalid action. Try the command `action`",
         )))
     };
     Ok(())
