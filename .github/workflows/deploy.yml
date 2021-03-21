@@ -125,3 +125,25 @@ jobs:
           body_path: RELEASE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  update_tap:
+    name: Update homebrew tap
+    needs: github_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup | Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Tap | Update
+        uses: mislav/bump-homebrew-formula-action@v1
+        if: "!contains(github.ref, '-')" # skip prereleases
+        with:
+          formula-name: my_formula
+          formula-path: Formula/glitter.rb
+          homebrew-tap: eternalmoon1234/homebrew-brew
+          base-branch: master
+          download-url: https://github.com/Milo123459/glitter/releases/latest/download/glitter-x86_64-apple-darwin.tar.gz
+          commit-message: |
+            {{formulaName}} {{version}}
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
