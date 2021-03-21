@@ -16,7 +16,7 @@ Git tooling of the future.
 <h1></h1>
 
 ## ❯ 👀 Features
-- Config files
+- Config files (with defaults!)
 - Fast
 - Easy to use
 - Friendly errors
@@ -28,7 +28,7 @@ For proper docs, see [here](/docs/index.md), this also includes examples.
 
 ## ❯ ✋ What, how and why?
 
-Glitter is a wrapper for Git essentially, allowing you to compress multiple commands into one. Glitter is written in **rust** which not only makes it fast but also efficient. We simply parse your `.glitterrc` and run a few git commands under the hood. Why? Simplicity. If you maintain a project, this is probably the thing for you.
+Glitter is a wrapper for Git essentially, allowing you to compress multiple commands into one. Glitter is written in **rust** which not only makes it fast but also efficient. We simply parse your `.glitterrc` (if it exists, if not it'll use the default config) and run a few git commands under the hood. Why? Simplicity. If you maintain a project, this is probably the thing for you.
 
 ## ❯ 😀 Installation
 

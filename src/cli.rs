@@ -14,7 +14,7 @@ macro_rules! match_patterns {
     }
   }
 
-fn get_commit_message(config: &GlitterRc, args: Arguments) -> anyhow::Result<String> {
+fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<String> {
     if config.commit_message == "$RAW_COMMIT_MSG" {
         return Err(anyhow::Error::new(Error::new(
             std::io::ErrorKind::InvalidInput,
@@ -165,9 +165,17 @@ pub fn push(
     }
     let mut _result = String::new();
     if !raw {
-        _result = get_commit_message(&&config, args)?;
+        _result = get_commit_message(&&config, &args)?;
     } else {
-        _result = args.arguments.join(" ")
+        let raw_args = args.clone();
+        _result = get_commit_message(&&GlitterRc {
+            commit_message: "$1+".to_owned(),
+            arguments: Some(vec![args]),
+            commit_message_arguments: None,
+            fetch: None,
+            custom_tasks: None,
+            __default: None
+        }, &raw_args.to_owned())?
     }
     if !dry {
         println!(
@@ -424,7 +432,7 @@ mod tests {
             __default: None,
         };
 
-        assert_eq!(get_commit_message(&config, args).unwrap(), "test(a): b c")
+        assert_eq!(get_commit_message(&config, &args).unwrap(), "test(a): b c")
     }
 
     #[test]
@@ -457,7 +465,7 @@ mod tests {
         };
 
         assert_eq!(
-            get_commit_message(&config, args).unwrap(),
+            get_commit_message(&config, &args).unwrap(),
             "test(a): b c : a | test a b c"
         )
     }
@@ -508,8 +516,8 @@ mod tests {
             __default: None,
         };
 
-        assert!(get_commit_message(&config, args).is_err());
-        assert!(get_commit_message(&config_2, args_2).is_err());
+        assert!(get_commit_message(&config, &args).is_err());
+        assert!(get_commit_message(&config_2, &args_2).is_err());
     }
 
     #[test]
@@ -537,7 +545,7 @@ mod tests {
             __default: None,
         };
 
-        assert!(get_commit_message(&config, args).is_err())
+        assert!(get_commit_message(&config, &args).is_err())
     }
 
     #[test]
@@ -573,7 +581,7 @@ mod tests {
         };
 
         assert_eq!(
-            get_commit_message(&config, args).unwrap(),
+            get_commit_message(&config, &args).unwrap(),
             "feat: test: tests"
         )
     }
