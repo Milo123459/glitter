@@ -1,27 +1,27 @@
 use crate::config::GlitterRc;
-use anyhow::Context;
 use std::fs::File;
-use std::path::PathBuf;
+use anyhow::Context;
+use std::path::{PathBuf, Path};
 // parse the config file
 pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
-    let file = File::open(path.as_path())
-        .with_context(|| format!("Could not read file `{}`", path.as_path().to_str().unwrap()))?;
-
+    let does_exist = Path::new(path.as_path()).exists();
+    if !does_exist {
+        Ok(GlitterRc {
+            fetch: None,
+            commit_message: "$1+".to_owned(),
+            arguments: None,
+            custom_tasks: None,
+            commit_message_arguments: None,
+            __default: Some(true)
+        })
+    } else {
+        
+    let file = File::open(path.as_path())?;
     match serde_json::from_reader(file) {
         Ok(json) => Ok(json),
-        Err(err) => {
-            println!("GlitterRC doesn't exist, {:?}", err);
-            Ok(GlitterRc {
-                fetch: None,
-                commit_message: "$1+".to_owned(),
-                arguments: None,
-                custom_tasks: None,
-                commit_message_arguments: None,
-                __default: Some(true)
-            })
-
-        }
+        Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),
     }
+}
 }
 // tests
 #[cfg(test)]

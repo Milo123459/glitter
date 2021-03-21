@@ -354,6 +354,10 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let dry = args.clone().dry();
     let branch = args.clone().branch;
     let nohost = args.clone().nohost();
+    let is_default = config.__default.is_some();
+    if is_default {
+        println!("{} Using default config", "WARN".black().on_yellow().bold())
+    }
     // custom macro for the patterns command
     match_patterns! { &*cmd.to_lowercase(), patterns,
         "push" => push(config, args, dry, branch, nohost)?,
