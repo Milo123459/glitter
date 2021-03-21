@@ -168,14 +168,17 @@ pub fn push(
         _result = get_commit_message(&&config, &args)?;
     } else {
         let raw_args = args.clone();
-        _result = get_commit_message(&&GlitterRc {
-            commit_message: "$1+".to_owned(),
-            arguments: Some(vec![args]),
-            commit_message_arguments: None,
-            fetch: None,
-            custom_tasks: None,
-            __default: None
-        }, &raw_args.to_owned())?
+        _result = get_commit_message(
+            &&GlitterRc {
+                commit_message: "$1+".to_owned(),
+                arguments: Some(vec![args]),
+                commit_message_arguments: None,
+                fetch: None,
+                custom_tasks: None,
+                __default: None,
+            },
+            &raw_args.to_owned(),
+        )?
     }
     if !dry {
         println!(
