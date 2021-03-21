@@ -23,15 +23,15 @@ pub struct Arguments {
     pub rc_path: std::path::PathBuf,
 
     /// branch to use. if the branch is not on the hosted repo use -nohost
-    #[structopt(long = "--branch", visible_alias = "b")]
+    #[structopt(long = "--branch", short, visible_alias = "br")]
     pub branch: Option<String>,
 
     /// dry run. aka don't run git commands
-    #[structopt(long)]
+    #[structopt(long, short, visible_alias = "d")]
     pub(crate) dry: Option<Option<bool>>,
 
     /// if the branch is not on the hosted provider, call this
-    #[structopt(long)]
+    #[structopt(long, short, visible_alias = "nh")]
     pub(crate) nohost: Option<Option<bool>>,
 }
 // for the usage of --dry, --nohost (shorthand, ie, without a value)
