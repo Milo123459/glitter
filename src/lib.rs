@@ -32,6 +32,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(true)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         run(args).unwrap();

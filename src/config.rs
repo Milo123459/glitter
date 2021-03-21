@@ -33,6 +33,10 @@ pub struct Arguments {
     /// if the branch is not on the hosted provider, call this
     #[structopt(long, short, visible_alias = "nh")]
     pub(crate) nohost: Option<Option<bool>>,
+
+    /// don't follow the commit template specified and just default to using $1+
+    #[structopt(long, short)]
+    pub(crate) raw: Option<Option<bool>>,
 }
 // for the usage of --dry, --nohost (shorthand, ie, without a value)
 impl Arguments {
@@ -45,6 +49,13 @@ impl Arguments {
     }
     pub fn nohost(&self) -> bool {
         match self.nohost {
+            None => false,
+            Some(None) => true,
+            Some(Some(a)) => a,
+        }
+    }
+    pub fn raw(&self) -> bool {
+        match self.raw {
             None => false,
             Some(None) => true,
             Some(Some(a)) => a,
@@ -74,7 +85,7 @@ pub struct GlitterRc {
     pub commit_message_arguments: Option<Vec<CommitMessageArguments>>,
     pub fetch: Option<bool>,
     pub custom_tasks: Option<Vec<CustomTaskOptions>>,
-    pub __default: Option<bool>
+    pub __default: Option<bool>,
 }
 
 #[cfg(test)]
@@ -99,6 +110,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -118,7 +130,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
@@ -135,7 +147,8 @@ mod tests {
                 rc_path: PathBuf::new(),
                 branch: Some(String::new()),
                 dry: Some(Some(false)),
-                nohost: Some(Some(false))
+                nohost: Some(Some(false)),
+                raw: Some(Some(false))
             }
         );
         assert_eq!(

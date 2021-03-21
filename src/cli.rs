@@ -153,6 +153,7 @@ pub fn push(
     dry: bool,
     branch: Option<String>,
     nohost: bool,
+    raw: bool,
 ) -> anyhow::Result<()> {
     if dry {
         println!(
@@ -162,12 +163,16 @@ pub fn push(
             "execute git commands.".yellow()
         );
     }
-
-    let result = get_commit_message(&&config, args)?;
+    let mut _result = String::new();
+    if !raw {
+        _result = get_commit_message(&&config, args)?;
+    } else {
+        _result = args.arguments.join(" ")
+    }
     if !dry {
         println!(
             "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
-            format!("{}{}{}", "`".green(), result.underline().green(), "`".green())
+            format!("{}{}{}", "`".green(), _result.underline().green(), "`".green())
         );
         // if they abort the process (cmd+c / ctrl+c), this will error
         // if they press enter the command will then start executing git commands
@@ -193,7 +198,7 @@ pub fn push(
         format!(
             "{}{}{}",
             "`".green(),
-            result.underline().green(),
+            _result.underline().green(),
             "`".green()
         )
     );
@@ -202,7 +207,7 @@ pub fn push(
         Command::new("git")
             .arg("commit")
             .arg("-m")
-            .arg(&result)
+            .arg(&_result)
             .status()?;
     }
     if !nohost {
@@ -309,12 +314,14 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
                 let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
                 if cmd.into_iter().find(|s| *s == args.arguments.first().unwrap().to_lowercase()).is_some() == true {
                     let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+                    if dry {
                     println!(
                         "{} {} {}",
                         "Dry run.".yellow(),
                         "Won't".yellow().underline(),
                         "execute commands specified.".yellow()
                     );
+                }
                      for task in exec {
                         let e = task.to_owned().unwrap();
                         for cmd in e {
@@ -344,7 +351,11 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 pub fn undo(dry: bool) -> anyhow::Result<()> {
     println!("{} git reset --soft HEAD~1", "$".green().bold());
     if !dry {
-        Command::new("git").arg("reset").arg("--soft").arg("HEAD~1").status()?;
+        Command::new("git")
+            .arg("reset")
+            .arg("--soft")
+            .arg("HEAD~1")
+            .status()?;
     }
     Ok(())
 }
@@ -354,13 +365,14 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
     let dry = args.clone().dry();
     let branch = args.clone().branch;
     let nohost = args.clone().nohost();
+    let raw_mode = args.clone().raw();
     let is_default = config.__default.is_some();
     if is_default {
         println!("{} Using default config", "WARN".black().on_yellow().bold())
     }
     // custom macro for the patterns command
     match_patterns! { &*cmd.to_lowercase(), patterns,
-        "push" => push(config, args, dry, branch, nohost)?,
+        "push" => push(config, args, dry, branch, nohost, raw_mode)?,
         "action" => action(patterns)?,
         "actions" => action(patterns)?,
         "cc" => cc(config, args, dry)?,
@@ -397,6 +409,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -408,7 +421,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert_eq!(get_commit_message(&config, args).unwrap(), "test(a): b c")
@@ -428,6 +441,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -439,7 +453,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert_eq!(
@@ -457,6 +471,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let args_2 = Arguments {
@@ -466,6 +481,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -477,7 +493,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         let config_2 = GlitterRc {
@@ -489,7 +505,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert!(get_commit_message(&config, args).is_err());
@@ -505,6 +521,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -517,7 +534,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert!(get_commit_message(&config, args).is_err())
@@ -532,6 +549,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -551,7 +569,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert_eq!(
@@ -579,6 +597,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -590,7 +609,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -607,6 +626,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -618,7 +638,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert!(match_cmds(args, config).is_ok());
@@ -635,6 +655,7 @@ mod tests {
             branch: Some(String::new()),
             dry: Some(Some(false)),
             nohost: Some(Some(false)),
+            raw: Some(Some(false)),
         };
 
         let config = GlitterRc {
@@ -646,7 +667,7 @@ mod tests {
                 name: "fmt".to_owned(),
                 execute: Some(vec!["cargo fmt".to_owned()]),
             }]),
-            __default: None
+            __default: None,
         };
 
         assert!(match_cmds(args, config).is_err());

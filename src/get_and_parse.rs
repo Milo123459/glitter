@@ -1,7 +1,7 @@
 use crate::config::GlitterRc;
-use std::fs::File;
 use anyhow::Context;
-use std::path::{PathBuf, Path};
+use std::fs::File;
+use std::path::{Path, PathBuf};
 // parse the config file
 pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
     let does_exist = Path::new(path.as_path()).exists();
@@ -12,16 +12,15 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
             arguments: None,
             custom_tasks: None,
             commit_message_arguments: None,
-            __default: Some(true)
+            __default: Some(true),
         })
     } else {
-        
-    let file = File::open(path.as_path())?;
-    match serde_json::from_reader(file) {
-        Ok(json) => Ok(json),
-        Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),
+        let file = File::open(path.as_path())?;
+        match serde_json::from_reader(file) {
+            Ok(json) => Ok(json),
+            Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),
+        }
     }
-}
 }
 // tests
 #[cfg(test)]
@@ -62,7 +61,13 @@ mod tests {
 
     #[test]
     fn non_existant_file() {
-        assert_eq!(parse(&PathBuf::from(".glitter")).unwrap().__default.is_some(), true)
+        assert_eq!(
+            parse(&PathBuf::from(".glitter"))
+                .unwrap()
+                .__default
+                .is_some(),
+            true
+        )
     }
 
     #[test]
