@@ -270,7 +270,7 @@ pub fn push(
 
 pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
     // this will sanitize the vec in a sense
-    // the input usually has \" \" around the value we want so we remove it
+    // the input has \" \" around the value we want so we remove it
     // we also filter out _ from the vec
     let actions = input
         .into_iter()
