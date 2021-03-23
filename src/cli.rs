@@ -185,7 +185,7 @@ pub fn push(
             "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
             format!("{}{}{}", "`".green(), _result.underline().green(), "`".green())
         );
-        // if they abort the process (cmd+c / ctrl+c), this will error
+        // if they abort the process (cmd+c / ctrl+c), this will error and stop
         // if they press enter the command will then start executing git commands
         let mut temp = String::new();
         stdin().read_line(&mut temp)?;

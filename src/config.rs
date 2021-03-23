@@ -38,7 +38,7 @@ pub struct Arguments {
     #[structopt(long, short)]
     pub(crate) raw: Option<Option<bool>>,
 }
-// for the usage of --dry, --nohost (shorthand, ie, without a value)
+// for the usage of --dry, --nohost, --raw (shorthand, ie, without a value)
 impl Arguments {
     pub fn dry(&self) -> bool {
         match self.dry {
@@ -87,7 +87,7 @@ pub struct GlitterRc {
     pub custom_tasks: Option<Vec<CustomTaskOptions>>,
     pub __default: Option<bool>,
 }
-
+// tests
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;
