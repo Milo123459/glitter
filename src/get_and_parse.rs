@@ -40,7 +40,7 @@ mod tests {
                 arguments: None,
                 commit_message_arguments: Some(vec![CommitMessageArguments {
                     argument: 1,
-                    case: Some("snake".to_string()),
+                    case: Some("lower".to_string()),
                     type_enums: Some(vec![
                         "fix".to_string(),
                         "feat".to_string(),
