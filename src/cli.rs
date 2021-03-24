@@ -474,7 +474,7 @@ mod tests {
     }
 
     #[test]
-    fn less_than_needed_args() {
+    fn less_than_required_args() {
         let args = Arguments {
             action: "push".to_string(),
             arguments: vec!["test".to_string(), "a".to_string()],

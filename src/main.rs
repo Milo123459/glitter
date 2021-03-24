@@ -10,7 +10,7 @@ fn main() -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::main;
-    
+
     #[test]
     fn runs_correctly() {
         // main will always error as it doesnt get any args
