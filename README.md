@@ -10,6 +10,7 @@ Git tooling of the future.
     <a href="https://github.com/Milo123459/glitter/releases">
     <img src="https://img.shields.io/github/downloads/Milo123459/glitter/total.svg">
     </a>
+    <img src="https://img.shields.io/github/stars/Milo123459/glitter">
     <img src="https://tokei.rs/b1/github/Milo123459/glitter?category=lines">
     <img src="https://www.codefactor.io/repository/github/milo123459/glitter/badge">
 </h3>
