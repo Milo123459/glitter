@@ -414,7 +414,7 @@ if [ $UNINSTALL == 1 ]; then
 
   info "REMOVING GLITTER"
 
-  if test_writeable "$(dirname "$("which glitter")")"; then
+  if test_writeable "$(dirname "$("which \"glitter\"")")"; then
     sudo=""
     msg="Removing Glitter, please wait…"
   else
