@@ -6,35 +6,35 @@ use crate::cli::match_cmds;
 use config::Arguments;
 // this function will parse configuration from the get_and_parse file and pass it onto the cli
 pub fn run(args: Arguments) -> anyhow::Result<()> {
-    let config = get_and_parse::parse(&args.rc_path)?;
-    match_cmds(args, config)?;
+	let config = get_and_parse::parse(&args.rc_path)?;
+	match_cmds(args, config)?;
 
-    Ok(())
+	Ok(())
 }
 // tests
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
+	use std::path::PathBuf;
 
-    use crate::{config::Arguments, run};
+	use crate::{config::Arguments, run};
 
-    #[test]
-    fn runs_correctly() {
-        let args = Arguments {
-            action: "push".to_string(),
-            arguments: vec![
-                "feat".to_string(),
-                "test".to_string(),
-                "b".to_string(),
-                "c".to_string(),
-            ],
-            rc_path: PathBuf::from(".glitterrc"),
-            branch: Some(String::new()),
-            dry: Some(Some(true)),
-            nohost: Some(Some(false)),
-            raw: Some(Some(false)),
-        };
+	#[test]
+	fn runs_correctly() {
+		let args = Arguments {
+			action: "push".to_string(),
+			arguments: vec![
+				"feat".to_string(),
+				"test".to_string(),
+				"b".to_string(),
+				"c".to_string(),
+			],
+			rc_path: PathBuf::from(".glitterrc"),
+			branch: Some(String::new()),
+			dry: Some(Some(true)),
+			nohost: Some(Some(false)),
+			raw: Some(Some(false)),
+		};
 
-        run(args).unwrap();
-    }
+		run(args).unwrap();
+	}
 }
