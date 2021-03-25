@@ -50,6 +50,14 @@ brew tap eternalmoon1234/brew
 brew install glitter
 ```
 
+**Linux**
+
+*This is a bash script that can install on **any** platform, not just linux.*
+
+```
+curl -fsSL https://raw.githubusercontent.com/Milo123459/glitter/master/install.sh | bash
+```
+
 **Other**
 
 Check the [releases](https://github.com/Milo123459/glitter/releases) and download the appropriate binary. Or build from source.
