@@ -18,9 +18,7 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
 		let file = File::open(path.as_path())?;
 		match serde_json::from_reader(file) {
 			Ok(json) => Ok(json),
-			Err(err) => {
-				Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc")
-			}
+			Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),
 		}
 	}
 }

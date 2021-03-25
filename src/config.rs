@@ -92,9 +92,7 @@ pub struct GlitterRc {
 mod tests {
 	use std::path::PathBuf;
 
-	use super::{
-		commit_msg, Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc,
-	};
+	use super::{commit_msg, Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc};
 
 	#[test]
 	fn check_commit_message() {

@@ -27,9 +27,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 	let mut result = String::from(&config.commit_message);
 
 	for val in splitted {
-		if val.len() >= 2
-			&& String::from(val.chars().nth(1).unwrap()) == String::from("+")
-		{
+		if val.len() >= 2 && String::from(val.chars().nth(1).unwrap()) == String::from("+") {
 			let idx = val.chars().nth(0).unwrap().to_digit(10).unwrap() - 1;
 			let rest = &args.arguments[idx as usize..];
 
@@ -71,9 +69,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 								"lower" => temp_val = temp_val.to_lowercase(),
 								"upper" => temp_val = temp_val.to_uppercase(),
 								"snake" => temp_val = temp_val.to_snake_case(),
-								"screaming-snake" => {
-									temp_val = temp_val.to_screaming_snake_case()
-								}
+								"screaming-snake" => temp_val = temp_val.to_screaming_snake_case(),
 								"kebab" => temp_val = temp_val.to_kebab_case(),
 								"train" => temp_val = temp_val.to_train_case(),
 								"sentence" => temp_val = temp_val.to_sentence_case(),
@@ -95,8 +91,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 									std::io::ErrorKind::InvalidInput,
 									format!(
 										"Argument {} did not have a valid type enum.",
-										String::from(val).split("").collect::<Vec<_>>()
-											[1]
+										String::from(val).split("").collect::<Vec<_>>()[1]
 									),
 								)));
 							}
@@ -114,8 +109,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 									std::io::ErrorKind::InvalidInput,
 									format!(
 										"Argument {} did not have a valid type enum.",
-										String::from(val).split("").collect::<Vec<_>>()
-											[1]
+										String::from(val).split("").collect::<Vec<_>>()[1]
 									),
 								)));
 							}
@@ -408,9 +402,7 @@ mod tests {
 	use crate::match_cmds;
 	use std::path::PathBuf;
 
-	use crate::config::{
-		Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc,
-	};
+	use crate::config::{Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc};
 
 	use super::get_commit_message;
 
