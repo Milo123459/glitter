@@ -1,8 +1,8 @@
 use crate::config::{Arguments, CustomTaskOptions, GlitterRc};
 use colored::*;
 use fancy_regex::Regex;
-use inflector::Inflector;
 use std::io::{stdin, Error};
+use inflector::Inflector;
 use std::process::Command;
 // this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
