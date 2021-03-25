@@ -97,6 +97,7 @@ test_writeable() {
 download() {
   file="$1"
   url="$2"
+  touch "$file"
 
   if has curl; then
     cmd="curl --fail --silent --location --output $file \"$url\""
