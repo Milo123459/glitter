@@ -98,6 +98,7 @@ download() {
   file="$1"
   url="$2"
   touch "$file"
+  printf "%s" "$file"
 
   if has curl; then
     cmd="curl --fail --silent --location --output $file \"$url\""
