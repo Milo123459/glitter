@@ -47,10 +47,10 @@ glitter --branch branch-name -- push arguments..
 ```
 or, push to a fresh branch (that is not on the hosted repo):
 ```
-glitter --branch branch-name --nohost -- push arguments..
+glitter -- --branch branch-name --nohost -- push arguments..
 ```
 
 Dry run:
 ```
-glitter --dry other-flags -- push arguments..
+glitter -- --dry -- push arguments..
 ```
