@@ -99,9 +99,9 @@ download() {
   url="$2"
 
   if has curl; then
-    cmd="curl --fail --silent --location --output $file $url"
+    cmd="curl --fail --silent --location --output $file \"$url\""
   elif has wget; then
-    cmd="wget --quiet --output-document=$file $url"
+    cmd="wget --quiet --output-document=$file \"$url\""
   elif has fetch; then
     cmd="fetch --quiet --output=$file $url"
   else
