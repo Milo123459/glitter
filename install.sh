@@ -3,7 +3,7 @@
 # Adapted from starships install file
 # shellcheck disable=SC2039
 
-# Options
+help_text="# Options
 #
 #   -V, --verbose
 #     Enable verbose output for the installer
@@ -22,6 +22,12 @@
 #
 #   -B, --base-url
 #     Override the base URL used for downloading releases
+#   -r, --remove
+#     Uninstall glitter
+#   -h, --help
+#     Get some help
+#
+"
 
 set -eu
 printf '\n'
@@ -93,9 +99,9 @@ download() {
   url="$2"
 
   if has curl; then
-    cmd="curl --fail --silent --location --output $file $url"
+    cmd="curl --fail --silent --location --output $file \"$url\""
   elif has wget; then
-    cmd="wget --quiet --output-document=$file $url"
+    cmd="wget --quiet --output-document=$file \"$url\""
   elif has fetch; then
     cmd="fetch --quiet --output=$file $url"
   else
@@ -158,8 +164,6 @@ install() {
   local sudo
   local archive
   local ext="$1"
-
-
 
   if test_writeable "${BIN_DIR}"; then
     sudo=""
@@ -312,7 +316,12 @@ is_build_available() {
     exit 1
   fi
 }
-
+UNINSTALL=0
+HELP=0
+CARGOTOML="$(curl -fsSL https://raw.githubusercontent.com/Milo123459/glitter/master/Cargo.toml)"
+ALL_VERSIONS="$(sed -n 's/.*version = "\([^"]*\)".*/\1/p' <<< "$CARGOTOML")"
+IFS=$'\n'
+read -r -a VERSION <<< "$ALL_VERSIONS"
 # defaults
 if [ -z "${PLATFORM-}" ]; then
   PLATFORM="$(detect_platform)"
@@ -358,11 +367,14 @@ while [ "$#" -gt 0 ]; do
     FORCE=1
     shift 1
     ;;
-  --remove | --uninstall)
+  -r | --remove | --uninstall)
     UNINSTALL=1
     shift 1
     ;;
-
+  -h | --help)
+    HELP=1
+    shift 1
+    ;;
   -p=* | --platform=*)
     PLATFORM="${1#*=}"
     shift 1
@@ -394,9 +406,7 @@ while [ "$#" -gt 0 ]; do
     ;;
   esac
 done
-
-if ! [ -z ${UNINSTALL+x} ]; then
-
+if [ $UNINSTALL == 1 ]; then
   confirm "Are you sure you want to uninstall glitter?"
 
   msg=""
@@ -404,7 +414,7 @@ if ! [ -z ${UNINSTALL+x} ]; then
 
   info "REMOVING GLITTER"
 
-  if test_writeable "$(dirname \"$(which glitter)\")"; then
+  if test_writeable "$(dirname "$(which glitter)")"; then
     sudo=""
     msg="Removing Glitter, please wait…"
   else
@@ -421,7 +431,10 @@ if ! [ -z ${UNINSTALL+x} ]; then
   exit 0
   
  fi
-
+if [ $HELP == 1 ]; then
+    echo "${help_text}"
+    exit 0
+fi
 TARGET="$(detect_target "${ARCH}" "${PLATFORM}")"
 
 is_build_available "${ARCH}" "${PLATFORM}" "${TARGET}"
@@ -430,6 +443,7 @@ printf "  %s\n" "${UNDERLINE}Configuration${NO_COLOR}"
 info "${BOLD}Bin directory${NO_COLOR}: ${GREEN}${BIN_DIR}${NO_COLOR}"
 info "${BOLD}Platform${NO_COLOR}:      ${GREEN}${PLATFORM}${NO_COLOR}"
 info "${BOLD}Arch${NO_COLOR}:          ${GREEN}${ARCH}${NO_COLOR}"
+info "${BOLD}Version${NO_COLOR}:       ${GREEN}${VERSION[0]}${NO_COLOR}"
 
 # non-empty VERBOSE enables verbose untarring
 if [ -n "${VERBOSE-}" ]; then
@@ -448,7 +462,7 @@ fi
 
 URL="${BASE_URL}/latest/download/glitter-${TARGET}.${EXT}"
 info "Tarball URL: ${UNDERLINE}${BLUE}${URL}${NO_COLOR}"
-confirm "Install Glitter ${GREEN}latest${NO_COLOR} to ${BOLD}${GREEN}${BIN_DIR}${NO_COLOR}?"
+confirm "Install Glitter ${GREEN}${VERSION[0]}${NO_COLOR} to ${BOLD}${GREEN}${BIN_DIR}${NO_COLOR}?"
 check_bin_dir "${BIN_DIR}"
 
 install "${EXT}"
