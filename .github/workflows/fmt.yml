@@ -15,7 +15,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install gcc clang g++ -y
       - uses: actions-rs/toolchain@v1.0.6
         with:
-          toolchain: nightly
+          toolchain: stable
           override: true
       - run: rustup component add rustfmt --toolchain nightly-x86_64-unknown-linux-gnu
       - uses: actions-rs/cargo@v1
