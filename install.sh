@@ -74,7 +74,7 @@ get_tmpfile() {
   local suffix
   suffix="$1"
   if has mktemp; then
-    printf "%s.%s" "$(mktemp)" "${suffix}"
+    printf "%s.%s.%s" "$(mktemp)" "-glitter"  "${suffix}"
   else
     # No really good options here--let's pick a default + hope
     printf "/tmp/glitter.%s" "${suffix}"
