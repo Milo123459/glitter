@@ -335,7 +335,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 				}
 					 for task in exec {
 						let e = task.to_owned().unwrap();
-                        // because it is a vec, we must do a for loop to get each command
+                        // because it is a vec, we must do a for loop to get each command  & execute if dry is false
 						for cmd in e {
 							let splitted = cmd.split(" ").collect::<Vec<&str>>();
 							println!("{} {}", "$".green().bold(), cmd);
@@ -352,7 +352,6 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 					)));
 				};
 			}
-
 		};
 	} else {
 		println!("Try `cc help`")
