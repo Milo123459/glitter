@@ -22,7 +22,7 @@ Git tooling of the future.
 - Easy to use
 - Friendly errors
 - Multi branch support
-- Beautiful, as if it just rolled in **Glitter!**
+- Beautiful, as if it just rolled in **Glitter**!
 
 ## ❯ 📚 Documentation
 
