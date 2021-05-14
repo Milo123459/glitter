@@ -380,7 +380,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let raw_mode = args.clone().raw();
 	let is_default = config.__default.is_some();
 	if is_default {
-		println!("{} Using default config", "WARN".black().on_yellow().bold())
+		println!("{} Using default config", "WARN".yellow().bold())
 	}
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
