@@ -255,11 +255,11 @@ pub fn push(
 				"{} git pull origin {}",
 				"$".green().bold(),
 				current_branch
-					.green()
-					.underline()
 					.split('\n')
 					.next()
 					.unwrap()
+					.green()
+					.underline()
 			)
 		}
 	}
@@ -288,11 +288,11 @@ pub fn push(
 			"{} git push origin {}",
 			"$".green().bold(),
 			current_branch
-				.green()
-				.underline()
 				.split('\n')
 				.next()
 				.unwrap()
+				.green()
+				.underline()
 		);
 	}
 	if !dry {
