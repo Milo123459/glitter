@@ -1,10 +1,10 @@
 use crate::config::GlitterRc;
 use anyhow::Context;
 use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 // parse the config file
-pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
-	let does_exist = Path::new(path.as_path()).exists();
+pub fn parse(path: &Path) -> anyhow::Result<GlitterRc> {
+	let does_exist = Path::new(path).exists();
 	if !does_exist {
 		Ok(GlitterRc {
 			fetch: None,
@@ -15,7 +15,7 @@ pub fn parse(path: &PathBuf) -> anyhow::Result<GlitterRc> {
 			__default: Some(true),
 		})
 	} else {
-		let file = File::open(path.as_path())?;
+		let file = File::open(path)?;
 		match serde_json::from_reader(file) {
 			Ok(json) => Ok(json),
 			Err(err) => Err(anyhow::Error::new(err)).with_context(|| "error parsing glitterrc"),

@@ -27,11 +27,11 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 	let mut result = String::from(&config.commit_message);
 
 	for val in splitted {
-		if val.len() >= 2 && String::from(val.chars().nth(1).unwrap()) == String::from("+") {
-			let idx = val.chars().nth(0).unwrap().to_digit(10).unwrap() - 1;
+		if val.len() >= 2 && String::from(val.chars().nth(1).unwrap()) == *"+" {
+			let idx = val.chars().next().unwrap().to_digit(10).unwrap() - 1;
 			let rest = &args.arguments[idx as usize..];
 
-			if rest.len() == 0 {
+			if rest.is_empty() {
 				return Err(anyhow::Error::new(Error::new(
 					std::io::ErrorKind::InvalidInput,
 					format!(
@@ -48,7 +48,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 		} else {
 			let idx = val.split("").nth(1).unwrap().parse::<usize>().unwrap() - 1;
 
-			if &args.arguments.len() <= &idx {
+			if args.arguments.len() <= idx {
 				return Err(anyhow::Error::new(Error::new(
 					std::io::ErrorKind::InvalidInput,
 					format!(
@@ -104,13 +104,14 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 			if let Some(ref args_) = config.commit_message_arguments {
 				for arg in args_.iter().as_ref() {
 					if arg.argument == ((idx + 1) as i32) {
-						if let Some(v) = arg.type_enums.as_ref() {
-							if !v.contains(&val_.to_owned()) {
+						if let Some(valid_type_enums) = arg.type_enums.as_ref() {
+							if !valid_type_enums.contains(&val_.to_owned()) {
 								return Err(anyhow::Error::new(Error::new(
 									std::io::ErrorKind::InvalidInput,
 									format!(
-										"Argument {} did not have a valid type enum.",
-										String::from(val).split("").collect::<Vec<_>>()[1]
+										"Argument {} did not have a valid type enum. Valid type enums are {}",
+										String::from(val).split("").collect::<Vec<_>>()[1],
+                                        valid_type_enums.join(", ").red().to_string()
 									),
 								)));
 							}
@@ -178,7 +179,7 @@ pub fn push(
 				custom_tasks: None,
 				__default: None,
 			},
-			&raw_args.to_owned(),
+			&raw_args,
 		)?
 	}
 	if !dry {
@@ -192,7 +193,7 @@ pub fn push(
 		stdin().read_line(&mut temp)?;
 	}
 	if let Some(fetch) = config.fetch {
-		if fetch == true {
+		if fetch {
 			println!("{} git fetch", "$".green().bold());
 			if !dry {
 				Command::new("git").arg("fetch").status()?;
@@ -233,17 +234,15 @@ pub fn push(
 			println!("{} git pull", "$".green().bold())
 		}
 	}
-	if !dry {
-		if !nohost {
-			if let Some(br) = &branch {
-				Command::new("git")
-					.arg("pull")
-					.arg("origin")
-					.arg(br.to_lowercase().to_string())
-					.status()?;
-			}
-			Command::new("git").arg("pull").status()?;
+	if !dry && !nohost {
+		if let Some(br) = &branch {
+			Command::new("git")
+				.arg("pull")
+				.arg("origin")
+				.arg(br.to_lowercase())
+				.status()?;
 		}
+		Command::new("git").arg("pull").status()?;
 	}
 	if let Some(br) = &branch {
 		println!(
@@ -259,7 +258,7 @@ pub fn push(
 			Command::new("git")
 				.arg("push")
 				.arg("origin")
-				.arg(br.to_lowercase().to_string())
+				.arg(br.to_lowercase())
 				.status()?;
 		} else {
 			Command::new("git").arg("push").status()?;
@@ -324,7 +323,8 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 					exec_cmds = v;
 				};
 				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
-				if cmd.into_iter().find(|s| *s == args.arguments.first().unwrap().to_lowercase()).is_some() == true {
+				if cmd.into_iter().any(|
+					s| s == args.arguments.first().unwrap().to_lowercase()) {
 					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
 					if dry {
 					println!(
@@ -338,7 +338,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 						let e = task.to_owned().unwrap();
 						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
 						for cmd in e {
-							let splitted = cmd.split(" ").collect::<Vec<&str>>();
+							let splitted = cmd.split(' ').collect::<Vec<&str>>();
 							println!("{} {}", "$".green().bold(), cmd);
 							if !dry {
 								Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
