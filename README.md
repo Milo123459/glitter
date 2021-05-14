@@ -21,7 +21,7 @@ Git tooling of the future.
 - Fast
 - Easy to use
 - Friendly errors
-- Multi branch support
+- Multi branch support (defaults to the one you are on!)
 - Beautiful, as if it just rolled in **Glitter**!
 
 ## ❯ 📚 Documentation

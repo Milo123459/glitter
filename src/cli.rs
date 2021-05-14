@@ -168,6 +168,15 @@ pub fn push(
 			),
 		)));
 	}
+	let current_branch = String::from_utf8(
+		Command::new("git")
+			.arg("branch")
+			.arg("--show-current")
+			.output()
+			.unwrap()
+			.stdout,
+	)
+	.unwrap();
 	if dry {
 		println!(
 			"{} {} {}",
@@ -262,7 +271,11 @@ pub fn push(
 			br.green().underline()
 		);
 	} else {
-		println!("{} git push", "$".green().bold());
+		println!(
+			"{} git push origin {}",
+			"$".green().bold(),
+			current_branch.green().underline()
+		);
 	}
 	if !dry {
 		if let Some(br) = &branch {
@@ -272,7 +285,11 @@ pub fn push(
 				.arg(br.to_lowercase())
 				.status()?;
 		} else {
-			Command::new("git").arg("push").status()?;
+			Command::new("git")
+				.arg("push")
+				.arg("origin")
+				.arg(current_branch)
+				.status()?;
 		}
 	}
 
