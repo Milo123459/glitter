@@ -85,13 +85,14 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 			if let Some(ref args_) = config.commit_message_arguments {
 				for arg in args_.iter().as_ref() {
 					if arg.argument == ((idx + 1) as i32) {
-						if let Some(v) = arg.type_enums.as_ref() {
-							if !v.contains(&val_.to_owned()) {
+						if let Some(valid_type_enums) = arg.type_enums.as_ref() {
+							if !valid_type_enums.contains(&val_.to_owned()) {
 								return Err(anyhow::Error::new(Error::new(
 									std::io::ErrorKind::InvalidInput,
 									format!(
-										"Argument {} did not have a valid type enum.",
-										String::from(val).split("").collect::<Vec<_>>()[1]
+										"Argument {} did not have a valid type enum. Valid type enums are {}",
+										String::from(val).split("").collect::<Vec<_>>()[1],
+                                        valid_type_enums.join(", ").red().to_string()
 									),
 								)));
 							}
