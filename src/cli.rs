@@ -264,6 +264,7 @@ pub fn push(
 		}
 		Command::new("git").arg("pull").status()?;
 	}
+    dbg!(&current_branch);
 	if let Some(br) = &branch {
 		println!(
 			"{} git push origin {}",
