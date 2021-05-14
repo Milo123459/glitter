@@ -3,6 +3,7 @@ use colored::*;
 use fancy_regex::Regex;
 use inflector::Inflector;
 use std::io::{stdin, Error};
+use std::path::Path;
 use std::process::Command;
 // this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
@@ -157,6 +158,16 @@ pub fn push(
 	nohost: bool,
 	raw: bool,
 ) -> anyhow::Result<()> {
+	let is_git_folder = Path::new(".git").exists();
+	if !is_git_folder {
+		return Err(anyhow::Error::new(Error::new(
+			std::io::ErrorKind::InvalidInput,
+			format!(
+				"{} This is not a git repository.",
+				"Fatal".red().to_string()
+			),
+		)));
+	}
 	if dry {
 		println!(
 			"{} {} {}",
@@ -380,7 +391,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let raw_mode = args.clone().raw();
 	let is_default = config.__default.is_some();
 	if is_default {
-		println!("{} Using default config", "WARN".yellow().bold())
+		println!("{} Using default config", "Warn".yellow())
 	}
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
