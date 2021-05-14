@@ -251,7 +251,16 @@ pub fn push(
 				br.to_string().green().underline()
 			);
 		} else {
-			println!("{} git pull", "$".green().bold())
+			println!(
+				"{} git pull origin {}",
+				"$".green().bold(),
+				current_branch
+					.green()
+					.underline()
+					.split('\n')
+					.next()
+					.unwrap()
+			)
 		}
 	}
 	if !dry && !nohost {
@@ -262,9 +271,12 @@ pub fn push(
 				.arg(br.to_lowercase())
 				.status()?;
 		}
-		Command::new("git").arg("pull").status()?;
+		Command::new("git")
+			.arg("pull")
+			.arg("origin")
+			.arg(current_branch.split('\n').next().unwrap())
+			.status()?;
 	}
-    dbg!(&current_branch);
 	if let Some(br) = &branch {
 		println!(
 			"{} git push origin {}",
@@ -275,7 +287,12 @@ pub fn push(
 		println!(
 			"{} git push origin {}",
 			"$".green().bold(),
-			current_branch.green().underline()
+			current_branch
+				.green()
+				.underline()
+				.split('\n')
+				.next()
+				.unwrap()
 		);
 	}
 	if !dry {
@@ -289,7 +306,7 @@ pub fn push(
 			Command::new("git")
 				.arg("push")
 				.arg("origin")
-				.arg(current_branch)
+				.arg(current_branch.split('\n').next().unwrap())
 				.status()?;
 		}
 	}
