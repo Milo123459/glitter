@@ -101,9 +101,9 @@ download() {
   printf "%s" "$file"
 
   if has curl; then
-    cmd="curl --fail --silent --location --output $file \"$url\""
+    cmd="curl --fail --silent --location --output $file $url"
   elif has wget; then
-    cmd="wget --quiet --output-document=$file \"$url\""
+    cmd="wget --quiet --output-document=$file $url"
   elif has fetch; then
     cmd="fetch --quiet --output=$file $url"
   else
@@ -326,8 +326,7 @@ UNINSTALL=0
 HELP=0
 CARGOTOML="$(curl -fsSL https://raw.githubusercontent.com/Milo123459/glitter/master/Cargo.toml)"
 ALL_VERSIONS="$(sed -n 's/.*version = "\([^"]*\)".*/\1/p' <<< "$CARGOTOML")"
-IFS=$'\n'
-read -r -a VERSION <<< "$ALL_VERSIONS"
+IFS=$'\n' read -r -a VERSION <<< "$ALL_VERSIONS"
 # defaults
 if [ -z "${PLATFORM-}" ]; then
   PLATFORM="$(detect_platform)"
