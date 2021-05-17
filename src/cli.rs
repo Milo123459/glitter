@@ -1,7 +1,6 @@
 use crate::config::{Arguments, CustomTaskOptions, GlitterRc};
 use colored::*;
 use fancy_regex::Regex;
-use find_folder::Search;
 use inflector::Inflector;
 use std::io::{stdin, Error};
 use std::path::Path;
@@ -160,7 +159,7 @@ pub fn push(
 	raw: bool,
 ) -> anyhow::Result<()> {
 	let is_git_folder = Path::new(".git").exists();
-	if !is_git_folder && Search::Parents(3).for_folder(".git").is_err() {
+	if !is_git_folder {
 		return Err(anyhow::Error::new(Error::new(
 			std::io::ErrorKind::InvalidInput,
 			format!(
@@ -169,7 +168,6 @@ pub fn push(
 			),
 		)));
 	}
-    println!("{:?}", Search::Parents(3).for_folder(".git").unwrap());
 	let current_branch = String::from_utf8(
 		Command::new("git")
 			.arg("branch")
