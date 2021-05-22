@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">❯ Glitter</h1>
 <h3 align="center">
-Git tooling of the future.
+Git tooling of the future
 <h3>
 <h3 align="center">
     <img src="https://codecov.io/gh/Milo123459/glitter/branch/master/graph/badge.svg">
