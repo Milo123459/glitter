@@ -277,6 +277,7 @@ pub fn push(
 			.arg(current_branch.split('\n').next().unwrap())
 			.status()?;
 	}
+	println!("{} ", "".white());
 	if let Some(br) = &branch {
 		println!(
 			"{} git push origin {}",
