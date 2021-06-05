@@ -218,12 +218,15 @@ pub fn push(
 			if !dry {
 				Command::new("git").arg("fetch").status()?;
 			}
+
+			println!("{}", "".clear().to_string());
 		}
 	}
 	println!("{} git add .", "$".green().bold());
 	if !dry {
 		Command::new("git").arg("add").arg(".").status()?;
 	}
+	println!("{}", "".clear().to_string());
 
 	println!(
 		"{} git commit -m {}",
@@ -243,6 +246,7 @@ pub fn push(
 			.arg(&_result)
 			.status()?;
 	}
+	println!("{}", "".clear().to_string());
 	if !nohost {
 		if let Some(br) = &branch {
 			println!(
@@ -277,7 +281,7 @@ pub fn push(
 			.arg(current_branch.split('\n').next().unwrap())
 			.status()?;
 	}
-	println!("{} ", "".white());
+	println!("{}", "".clear().to_string());
 	if let Some(br) = &branch {
 		println!(
 			"{} git push origin {}",
