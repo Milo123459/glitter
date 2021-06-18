@@ -597,7 +597,7 @@ mod tests {
 			__default: None,
 		};
 
-		assert!(get_commit_message(&config, &args).is_err())
+		assert!(get_commit_message(&config, &args).is_ok())
 	}
 
 	#[test]
