@@ -16,11 +16,8 @@ macro_rules! match_patterns {
   }
 
 fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<String> {
-	if config.commit_message == "$RAW_COMMIT_MSG" {
-		return Err(anyhow::Error::new(Error::new(
-            std::io::ErrorKind::InvalidInput,
-            "No template provided. A template has to be provided for Glitter to run the command push.",
-        )));
+	if config.commit_message == "$1+" {
+		println!("{} Using default template", "Warn".yellow())
 	}
 
 	let splitted = config.commit_message.split('$').skip(1);
@@ -588,8 +585,8 @@ mod tests {
 		};
 
 		let config = GlitterRc {
-			// "$RAW_COMMIT_MSG" is the default
-			commit_message: "$RAW_COMMIT_MSG".to_string(),
+			// "$1+" is the default
+			commit_message: "$1+".to_string(),
 			arguments: None,
 			commit_message_arguments: None,
 			fetch: None,

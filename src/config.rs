@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 
 fn commit_msg() -> String {
-	"$RAW_COMMIT_MSG".to_string()
+	"$1+".to_string()
 }
 
 #[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq, Clone)]
@@ -133,7 +133,7 @@ mod tests {
 			__default: None,
 		};
 
-		assert_eq!(commit_msg(), "$RAW_COMMIT_MSG".to_string());
+		assert_eq!(commit_msg(), "$1+".to_string());
 		assert_eq!(
 			args,
 			Arguments {
