@@ -281,7 +281,8 @@ pub fn push(
 	println!("{}", "".clear().to_string());
 	if let Some(br) = &branch {
 		println!(
-			"{} git push origin {}",
+			"{}{} git push origin {}",
+            "".clear().to_string(),
 			"$".green().bold(),
 			br.green().underline()
 		);
