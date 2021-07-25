@@ -438,10 +438,46 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry)?,
 		"undo" => undo(dry)?,
-		_ => return Err(anyhow::Error::new(Error::new(
-			std::io::ErrorKind::InvalidInput,
-			"Invalid action. Try the command `action`",
-		)))
+		_ => {
+
+				let mut cmds: Vec<CustomTaskOptions> = vec![];
+				let mut exec_cmds: Vec<CustomTaskOptions> = vec![];
+				if let Some(v) = config.custom_tasks {
+					cmds = v.clone();
+					exec_cmds = v;
+				};
+				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
+				if cmd.into_iter().any(|
+					s| s == args.arguments.first().unwrap().to_lowercase()) {
+					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+					if dry {
+					println!(
+						"{} {} {}",
+						"Dry run.".yellow(),
+						"Won't".yellow().underline(),
+						"execute commands specified.".yellow()
+					);
+				}
+					 for task in exec {
+						let e = task.to_owned().unwrap();
+						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
+						for cmd in e {
+							let splitted = cmd.split(' ').collect::<Vec<&str>>();
+							println!("{} {}", "$".green().bold(), cmd);
+							if !dry {
+								Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
+							}
+
+						}
+					};
+				} else {
+					return Err(anyhow::Error::new(Error::new(
+						std::io::ErrorKind::InvalidInput,
+						"This is not a valid action or custom command.",
+					)));
+				};
+
+	}
 	};
 	Ok(())
 }
