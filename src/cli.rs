@@ -449,7 +449,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
 				if cmd.into_iter().any(|
 					s| s == args.action.to_lowercase()) {
-					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+					let exec = exec_cmds.into_iter().filter(|x| x.name == args.action.to_lowercase()).map(|x| x.execute);
 					if dry {
 					println!(
 						"{} {} {}",
