@@ -228,7 +228,6 @@ pub fn push(
 	if !dry {
 		Command::new("git").arg("add").arg(".").status()?;
 	}
-	println!("{}", "".normal().clear().to_string());
 	// glitter hooks
 	if !dry
 		&& !no_verify
@@ -280,7 +279,6 @@ pub fn push(
 			.arg(&_result)
 			.status()?;
 	}
-	println!("{}", "".normal().clear().to_string());
 	if !nohost {
 		if let Some(br) = &branch {
 			println!(
@@ -315,7 +313,6 @@ pub fn push(
 			.arg(current_branch.split('\n').next().unwrap())
 			.status()?;
 	}
-	println!("{}", "".normal().clear().to_string());
 	if let Some(br) = &branch {
 		println!(
 			"{}{} git push origin {}",
