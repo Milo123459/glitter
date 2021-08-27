@@ -163,7 +163,7 @@ Glitter Hooks are Git hooks without the bash. Here is an example of how we can r
 ```
 
 From this, before we commit, `cargo fmt` will be executed. You can add more commands to be executed by simply adding another command to the `fmt` field, or, adding another custom_task and referencing that in hooks.
-If you need help, you can make a discussion.
+If you need help, you can make a discussion, and if you find a bug, please make a bug report!
 
 ## ❯ 📣 Available Cases
 
