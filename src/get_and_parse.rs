@@ -63,12 +63,10 @@ mod tests {
 
 	#[test]
 	fn non_existant_file() {
-		assert!(
-			parse(&PathBuf::from(".glitter"))
-				.unwrap()
-				.__default
-				.is_some()
-		)
+		assert!(parse(&PathBuf::from(".glitter"))
+			.unwrap()
+			.__default
+			.is_some())
 	}
 
 	#[test]
