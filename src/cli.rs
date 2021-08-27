@@ -248,7 +248,6 @@ pub fn push(
 				std::process::exit(1);
 			}
 			let custom_task = &tasks.iter().find(|task| task.name == hook);
-            dbg!(custom_task);
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
 					println!("{} {}", "$".green().bold(), cmd);
