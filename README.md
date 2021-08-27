@@ -23,6 +23,7 @@ Git tooling of the future
 - Friendly errors (how to fix them included!)
 - Multi branch support (defaults to the one you are on!)
 - Beautiful, as if it just rolled in **Glitter**!
+- Glitter Hooks (Git hooks but Glitter)
 
 ## ❯ 📚 Documentation
 

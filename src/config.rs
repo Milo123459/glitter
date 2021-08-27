@@ -22,7 +22,7 @@ pub struct Arguments {
 	)]
 	pub rc_path: std::path::PathBuf,
 
-	/// branch to use. if the branch is not on the hosted repo use -nohost
+	/// branch to use. if the branch is not on the hosted repo use --nohost
 	#[structopt(long = "--branch", short, visible_alias = "br")]
 	pub branch: Option<String>,
 
@@ -31,14 +31,18 @@ pub struct Arguments {
 	pub(crate) dry: Option<Option<bool>>,
 
 	/// if the branch is not on the hosted provider, call this
-	#[structopt(long, short, visible_alias = "nh")]
+	#[structopt(long, visible_alias = "nh")]
 	pub(crate) nohost: Option<Option<bool>>,
 
-	/// don't follow the commit template specified and just default to using $1+
+	/// don't follow the commit template specified and just use $1+
 	#[structopt(long, short)]
 	pub(crate) raw: Option<Option<bool>>,
+
+	/// don't run any glitter hooks
+	#[structopt(long = "no-verify", short = "n")]
+	pub(crate) no_verify: Option<Option<bool>>,
 }
-// for the usage of --dry, --nohost, --raw (shorthand, ie, without a value)
+// for the usage of --dry, --nohost, --raw, --no-verify (shorthand, ie, without a value)
 impl Arguments {
 	pub fn dry(&self) -> bool {
 		match self.dry {
@@ -56,6 +60,13 @@ impl Arguments {
 	}
 	pub fn raw(&self) -> bool {
 		match self.raw {
+			None => false,
+			Some(None) => true,
+			Some(Some(a)) => a,
+		}
+	}
+	pub fn no_verify(&self) -> bool {
+		match self.no_verify {
 			None => false,
 			Some(None) => true,
 			Some(Some(a)) => a,
@@ -85,6 +96,7 @@ pub struct GlitterRc {
 	pub commit_message_arguments: Option<Vec<CommitMessageArguments>>,
 	pub fetch: Option<bool>,
 	pub custom_tasks: Option<Vec<CustomTaskOptions>>,
+	pub hooks: Option<Vec<String>>,
 	pub __default: Option<bool>,
 }
 // tests
@@ -111,6 +123,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -131,6 +144,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert_eq!(commit_msg(), "$1+".to_string());
@@ -148,7 +162,8 @@ mod tests {
 				branch: Some(String::new()),
 				dry: Some(Some(false)),
 				nohost: Some(Some(false)),
-				raw: Some(Some(false))
+				raw: Some(Some(false)),
+				no_verify: Some(Some(false))
 			}
 		);
 		assert_eq!(
@@ -170,7 +185,8 @@ mod tests {
 					name: "fmt".to_owned(),
 					execute: Some(vec!["cargo fmt".to_owned()])
 				}]),
-				__default: None
+				__default: None,
+				hooks: None
 			}
 		);
 	}

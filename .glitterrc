@@ -22,5 +22,8 @@
                 "cargo fmt"
             ]
         }
+    ],
+    "hooks": [
+        "fmt"
     ]
 }

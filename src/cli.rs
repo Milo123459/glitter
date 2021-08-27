@@ -16,10 +16,6 @@ macro_rules! match_patterns {
   }
 
 fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<String> {
-	if config.commit_message == "$1+" {
-		println!("{} Using default template", "Warn".yellow())
-	}
-
 	let splitted = config.commit_message.split('$').skip(1);
 
 	let mut result = String::from(&config.commit_message);
@@ -154,6 +150,7 @@ pub fn push(
 	branch: Option<String>,
 	nohost: bool,
 	raw: bool,
+	no_verify: bool,
 ) -> anyhow::Result<()> {
 	let is_git_folder = Path::new(".git").exists();
 	if !is_git_folder {
@@ -179,8 +176,15 @@ pub fn push(
 			"{} {} {}",
 			"Dry run.".yellow(),
 			"Won't".yellow().underline(),
-			"execute git commands.".yellow()
+			"execute git commands or glitter hooks.".yellow()
 		);
+	}
+	if config.hooks.is_some() && config.hooks.clone().unwrap().is_empty() && no_verify {
+		println!(
+			"{} Redundant usage of {}. There are no Glitter hooks in this project",
+			"Warn".yellow(),
+			"no-verify".bold()
+		)
 	}
 	let mut _result = String::new();
 	if !raw {
@@ -195,6 +199,7 @@ pub fn push(
 				fetch: None,
 				custom_tasks: None,
 				__default: None,
+				hooks: None,
 			},
 			&raw_args,
 		)?
@@ -224,7 +229,39 @@ pub fn push(
 		Command::new("git").arg("add").arg(".").status()?;
 	}
 	println!("{}", "".normal().clear().to_string());
-
+	// glitter hooks
+	if !dry
+		&& !no_verify
+		&& config.custom_tasks.is_some()
+		&& config.hooks.is_some()
+		&& !config.hooks.clone().unwrap().is_empty()
+	{
+		let tasks = &config.custom_tasks.unwrap();
+		let task_names = &tasks
+			.iter()
+			.map(|task| task.clone().name)
+			.collect::<Vec<String>>();
+		let hooks = &config.hooks.unwrap();
+		for hook in hooks.clone() {
+			if !task_names.contains(&hook) {
+				println!("{} Couldn't find the custom task `{}`", "Fatal".red(), hook);
+				std::process::exit(1);
+			}
+			let custom_task = &tasks.iter().find(|task| task.name == hook);
+			if let Some(task) = custom_task {
+				for cmd in task.execute.clone().unwrap() {
+					println!("{} {}", "$".green().bold(), cmd);
+					let splitted = cmd.split(' ').collect::<Vec<&str>>();
+					Command::new(splitted.first().unwrap())
+						.args(&splitted[1..])
+						.status()?;
+				}
+			} else {
+				println!("{} Couldn't find the custom task `{}`", "Fatal".red(), hook);
+				std::process::exit(1);
+			}
+		}
+	}
 	println!(
 		"{} git commit -m {}",
 		"$".green().bold(),
@@ -428,18 +465,18 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let nohost = args.clone().nohost();
 	let raw_mode = args.clone().raw();
 	let is_default = config.__default.is_some();
+	let no_verify = args.clone().no_verify();
 	if is_default {
 		println!("{} Using default config", "Warn".yellow())
 	}
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, branch, nohost, raw_mode)?,
+		"push" => push(config, args, dry, branch, nohost, raw_mode, no_verify)?,
 		"action" => action(patterns)?,
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry)?,
 		"undo" => undo(dry)?,
 		_ => {
-
 				let mut cmds: Vec<CustomTaskOptions> = vec![];
 				let mut exec_cmds: Vec<CustomTaskOptions> = vec![];
 				if let Some(v) = config.custom_tasks {
@@ -507,6 +544,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -519,6 +557,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert_eq!(get_commit_message(&config, &args).unwrap(), "test(a): b c")
@@ -539,6 +578,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -551,6 +591,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert_eq!(
@@ -569,6 +610,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let args_2 = Arguments {
@@ -579,6 +621,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -591,6 +634,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		let config_2 = GlitterRc {
@@ -603,6 +647,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert!(get_commit_message(&config, &args).is_err());
@@ -619,6 +664,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -632,6 +678,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert!(get_commit_message(&config, &args).is_ok())
@@ -647,6 +694,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -667,6 +715,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert_eq!(
@@ -695,6 +744,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -707,6 +757,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert!(match_cmds(args, config).is_ok());
@@ -724,6 +775,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -736,6 +788,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert!(match_cmds(args, config).is_ok());
@@ -753,6 +806,7 @@ mod tests {
 			dry: Some(Some(false)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -765,6 +819,7 @@ mod tests {
 				execute: Some(vec!["cargo fmt".to_owned()]),
 			}]),
 			__default: None,
+			hooks: None,
 		};
 
 		assert!(match_cmds(args, config).is_err());

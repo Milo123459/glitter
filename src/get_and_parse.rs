@@ -13,6 +13,7 @@ pub fn parse(path: &Path) -> anyhow::Result<GlitterRc> {
 			custom_tasks: None,
 			commit_message_arguments: None,
 			__default: Some(true),
+			hooks: None,
 		})
 	} else {
 		let file = File::open(path)?;
@@ -56,7 +57,8 @@ mod tests {
 					name: "fmt".to_owned(),
 					execute: Some(vec!["cargo fmt".to_owned()])
 				}]),
-				__default: None
+				__default: None,
+				hooks: None
 			}
 		)
 	}

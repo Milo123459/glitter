@@ -33,6 +33,7 @@ mod tests {
 			dry: Some(Some(true)),
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
+			no_verify: Some(Some(false)),
 		};
 
 		run(args).unwrap();
