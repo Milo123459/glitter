@@ -145,6 +145,26 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 
 **That's reliant on your internet connection.** - We are just running git commands under the hood. Git will be the thing taking it's sweet time.
 
+## ❯ 🎣 Glitter Hooks
+
+Glitter Hooks are Git hooks without the bash. Here is an example of how we can run `cargo fmt` before commiting on this codebase.
+
+```json
+{
+    ...
+    "custom_tasks": [
+        {
+            "name": "fmt",
+            "execute": ["cargo fmt"]
+        }
+    ],
+    "hooks": ["fmt"]
+}
+```
+
+From this, before we commit, `cargo fmt` will be executed. You can add more commands to be executed by simply adding another command to the `fmt` field, or, adding another custom_task and referencing that in hooks.
+If you need help, you can make a discussion.
+
 ## ❯ 📣 Available Cases
 
 - lower
