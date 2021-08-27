@@ -19,7 +19,7 @@
         {
             "name": "fmt",
             "execute": [
-                "cargo fmwt"
+                "cargo fmt"
             ]
         }
     ],

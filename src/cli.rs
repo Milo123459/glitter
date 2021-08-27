@@ -251,9 +251,12 @@ pub fn push(
 				for cmd in task.execute.clone().unwrap() {
 					println!("{} {}", "$".green().bold(), cmd);
 					let splitted = cmd.split(' ').collect::<Vec<&str>>();
-					Command::new(splitted.first().unwrap())
+					let status = Command::new(splitted.first().unwrap())
 						.args(&splitted[1..])
-						.status()?;
+						.status();
+                    if status.is_err() || !status.unwrap().success() {
+                        std::process::exit(1);
+                    }
 				}
 			} else {
 				println!("{} Couldn't find the custom task `{}`", "Fatal".red(), hook);
