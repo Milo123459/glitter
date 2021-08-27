@@ -13,3 +13,6 @@ anyhow = "1.0.43"
 fancy-regex = "0.7.1"
 Inflector = { version = "0.11.4", default-features = false }
 colored = "2.0.0"
+
+[profile.release]
+lto = "fat"

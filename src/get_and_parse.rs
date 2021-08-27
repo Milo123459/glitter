@@ -63,17 +63,16 @@ mod tests {
 
 	#[test]
 	fn non_existant_file() {
-		assert_eq!(
+		assert!(
 			parse(&PathBuf::from(".glitter"))
 				.unwrap()
 				.__default
-				.is_some(),
-			true
+				.is_some()
 		)
 	}
 
 	#[test]
 	fn broken_glitterrc() {
-		assert_eq!(parse(&PathBuf::from(".glitterrc.broken")).is_err(), true)
+		assert!(parse(&PathBuf::from(".glitterrc.broken")).is_err())
 	}
 }

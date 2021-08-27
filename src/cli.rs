@@ -184,11 +184,11 @@ pub fn push(
 	}
 	let mut _result = String::new();
 	if !raw {
-		_result = get_commit_message(&&config, &args)?;
+		_result = get_commit_message(&config, &args)?;
 	} else {
 		let raw_args = args.clone();
 		_result = get_commit_message(
-			&&GlitterRc {
+			&GlitterRc {
 				commit_message: "$1+".to_owned(),
 				arguments: Some(vec![args]),
 				commit_message_arguments: None,
