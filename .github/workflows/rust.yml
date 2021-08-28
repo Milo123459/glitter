@@ -113,11 +113,7 @@ jobs:
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v2
-
-      - name: Setup | libdbus (ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install libdbus-1-dev
-
+        
       # Cache files between builds
       # - name: Setup | Cache Cargo
       #   uses: actions/cache@v2
@@ -135,11 +131,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           profile: minimal
           override: true
-
-      # Install Mercurial (pre-installed on Linux and windows)
-      - name: Setup | Mercurial (macos)
-        if: matrix.os == 'macOS-latest'
-        run: brew install mercurial
 
       # Run the ignored tests that expect the above setup
       - name: Build | Test
