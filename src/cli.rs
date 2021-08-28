@@ -521,7 +521,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 					let exec = exec_cmds.into_iter().filter(|x| x.name == args.action.to_lowercase()).map(|x| x.execute);
 					 for task in exec {
 						let e = task.to_owned().unwrap();
-						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
+						// because it is a vec, we must do a for loop to get each command & execute if dry is false
 						for cmd in e {
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
 							println!("{} {}", "$".green().bold(), cmd);
