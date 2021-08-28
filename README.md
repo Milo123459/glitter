@@ -142,7 +142,7 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 
 ## ❯ 🎣 Glitter Hooks
 
-Glitter Hooks are Git hooks without the bash. Here is an example of how we can run `cargo fmt` before commiting on this codebase.
+Glitter Hooks are Git hooks without the bash. Here is an example of how we can run `cargo fmt` before commiting to this codebase.
 
 ```json
 {

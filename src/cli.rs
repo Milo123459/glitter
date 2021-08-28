@@ -223,12 +223,7 @@ pub fn push(
 
 			println!("{}", "".normal().clear().to_string());
 		}
-	}
-	println!("{} git add .", "$".green().bold());
-	if !dry {
-		Command::new("git").arg("add").arg(".").status()?;
-	}
-	// glitter hooks
+	} // glitter hooks
 	if config.custom_tasks.is_some()
 		&& config.hooks.is_some()
 		&& !config.hooks.clone().unwrap().is_empty()
@@ -263,6 +258,10 @@ pub fn push(
 				std::process::exit(1);
 			}
 		}
+	}
+	println!("{} git add .", "$".green().bold());
+	if !dry {
+		Command::new("git").arg("add").arg(".").status()?;
 	}
 	println!(
 		"{} git commit -m {}",
@@ -447,7 +446,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 }
 
 pub fn undo(dry: bool) -> anyhow::Result<()> {
-    if dry {
+	if dry {
 		println!(
 			"{} {} {}",
 			"Dry run.".yellow(),
