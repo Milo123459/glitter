@@ -447,6 +447,14 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 }
 
 pub fn undo(dry: bool) -> anyhow::Result<()> {
+    if dry {
+		println!(
+			"{} {} {}",
+			"Dry run.".yellow(),
+			"Won't".yellow().underline(),
+			"execute git commands.".yellow()
+		);
+	}
 	println!("{} git reset --soft HEAD~1", "$".green().bold());
 	if !dry {
 		Command::new("git")
