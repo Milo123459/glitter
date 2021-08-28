@@ -242,7 +242,9 @@ pub fn push(
 			let custom_task = &tasks.iter().find(|task| task.name == hook);
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
+                    if !no_verify {
 					println!("{} {}", "$".green().bold(), cmd);
+                    }
 					if !dry && !no_verify {
 						let splitted = cmd.split(' ').collect::<Vec<&str>>();
 						let status = Command::new(splitted.first().unwrap())
