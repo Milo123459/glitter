@@ -229,9 +229,7 @@ pub fn push(
 		Command::new("git").arg("add").arg(".").status()?;
 	}
 	// glitter hooks
-	if !dry
-		&& !no_verify
-		&& config.custom_tasks.is_some()
+	if config.custom_tasks.is_some()
 		&& config.hooks.is_some()
 		&& !config.hooks.clone().unwrap().is_empty()
 	{
@@ -250,12 +248,14 @@ pub fn push(
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
 					println!("{} {}", "$".green().bold(), cmd);
-					let splitted = cmd.split(' ').collect::<Vec<&str>>();
-					let status = Command::new(splitted.first().unwrap())
-						.args(&splitted[1..])
-						.status();
-					if status.is_err() || !status.unwrap().success() {
-						std::process::exit(1);
+					if !dry && !no_verify {
+						let splitted = cmd.split(' ').collect::<Vec<&str>>();
+						let status = Command::new(splitted.first().unwrap())
+							.args(&splitted[1..])
+							.status();
+						if status.is_err() || !status.unwrap().success() {
+							std::process::exit(1);
+						}
 					}
 				}
 			} else {
