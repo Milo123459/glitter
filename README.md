@@ -175,4 +175,6 @@ If you need help, you can make a discussion, and if you find a bug, please make 
 
 .. got a suggestion? Please make a discussion.
 
-**INSTALLATION ERRORS** are to go in issues.
+Installation errors are to go in issues.
+
+Hope Glitter helps you!
