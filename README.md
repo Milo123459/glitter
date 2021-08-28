@@ -47,15 +47,6 @@ Glitter is a wrapper for Git essentially, allowing you to compress multiple comm
 scoop install glitter
 ```
 
-**MacOS**
-
-[Brew](https://brew.sh)
-
-```
-brew tap eternalmoon1234/brew
-brew install glitter
-```
-
 **Linux**
 
 *This is a bash script that can install on **any** platform other then **windows**, not just linux.*

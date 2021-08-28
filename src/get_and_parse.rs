@@ -53,13 +53,16 @@ mod tests {
 					])
 				}]),
 				fetch: None,
-				custom_tasks: Some(vec![CustomTaskOptions {
-					name: String::from("fmt"),
-					execute: Some(vec![String::from("cargo fmt")])
-				}, CustomTaskOptions {
-                    name: String::from("lint"),
-                    execute: Some(vec![String::from("cargo lint")])
-                }]),
+				custom_tasks: Some(vec![
+					CustomTaskOptions {
+						name: String::from("fmt"),
+						execute: Some(vec![String::from("cargo fmt")])
+					},
+					CustomTaskOptions {
+						name: String::from("lint"),
+						execute: Some(vec![String::from("cargo lint")])
+					}
+				]),
 				__default: None,
 				hooks: Some(vec![String::from("fmt"), String::from("lint")])
 			}
