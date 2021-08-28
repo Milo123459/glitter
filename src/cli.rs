@@ -236,10 +236,6 @@ pub fn push(
 			println!("{}", "".normal().clear().to_string());
 		}
 	}
-	println!("{} git add .", "$".green().bold());
-	if !dry {
-		Command::new("git").arg("add").arg(".").status()?;
-	}
 	// glitter hooks
 	if config.custom_tasks.is_some()
 		&& config.hooks.is_some()
@@ -259,13 +255,25 @@ pub fn push(
 			let custom_task = &tasks.iter().find(|task| task.name == hook);
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
-					println!("{} {}", "$".green().bold(), cmd);
+					if !no_verify {
+						println!("{} {}", "$".green().bold(), cmd);
+					}
 					if !dry && !no_verify {
-						let split = cmd.split(' ').collect::<Vec<&str>>();
-						let status = Command::new(split.first().unwrap())
-							.args(&split[1..])
-							.status();
-						if status.is_err() || !status.unwrap().success() {
+						let splitted = cmd.split(' ').collect::<Vec<&str>>();
+						let command = which::which(splitted.first().unwrap());
+						if command.is_err() {
+							println!(
+								"{} Cannot find binary `{}`",
+								"Fatal".red(),
+								&&(*(*splitted.first().unwrap()))
+							);
+							std::process::exit(1);
+						}
+						let status = Command::new(command.unwrap())
+							.args(&splitted[1..])
+							.status()
+							.unwrap();
+						if !&status.clone().success() {
 							std::process::exit(1);
 						}
 					}
@@ -275,6 +283,10 @@ pub fn push(
 				std::process::exit(1);
 			}
 		}
+	}
+	println!("{} git add .", "$".green().bold());
+	if !dry {
+		Command::new("git").arg("add").arg(".").status()?;
 	}
 	println!(
 		"{} git commit -m {}",
@@ -420,11 +432,7 @@ pub fn cc(config: GlitterRc, args: Vec<String>, dry: bool) -> anyhow::Result<()>
 					cmds = v.clone();
 					exec_cmds = v;
 				};
-				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
-				if cmd.into_iter().any(|
-					s| s == args.first().unwrap().to_lowercase()) {
-					let exec = exec_cmds.into_iter().filter(|x| x.name == args.first().unwrap().to_lowercase()).map(|x| x.execute);
-					if dry {
+				if dry {
 					println!(
 						"{} {} {}",
 						"Dry run.".yellow(),
@@ -432,14 +440,23 @@ pub fn cc(config: GlitterRc, args: Vec<String>, dry: bool) -> anyhow::Result<()>
 						"execute commands specified.".yellow()
 					);
 				}
+				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
+				if cmd.into_iter().any(|
+					s| s == args.arguments.first().unwrap().to_lowercase()) {
+					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
 					 for task in exec {
 						let e = task.to_owned().unwrap();
 						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
 						for cmd in e {
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
 							println!("{} {}", "$".green().bold(), cmd);
+							let command = which::which(splitted.first().unwrap());
+							if command.is_err() {
+								println!("{} Cannot find binary `{}`", "Fatal".red(), &&(*(*splitted.first().unwrap())));
+								std::process::exit(1);
+							}
 							if !dry {
-								Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
+								Command::new(command.unwrap()).args(&splitted[1..]).envs(std::env::vars()).status()?;
 							}
 
 						}
@@ -459,6 +476,14 @@ pub fn cc(config: GlitterRc, args: Vec<String>, dry: bool) -> anyhow::Result<()>
 }
 
 pub fn undo(dry: bool) -> anyhow::Result<()> {
+	if dry {
+		println!(
+			"{} {} {}",
+			"Dry run.".yellow(),
+			"Won't".yellow().underline(),
+			"execute git commands.".yellow()
+		);
+	}
 	println!("{} git reset --soft HEAD~1", "$".green().bold());
 	if !dry {
 		Command::new("git")

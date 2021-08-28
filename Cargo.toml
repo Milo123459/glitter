@@ -1,6 +1,6 @@
 [package]
 name = "glitter"
-version = "1.4.2"
+version = "1.4.4"
 authors = ["Milo123459"]
 edition = "2018"
 include = ["src/**/*", "LICENSE", "README.md"]
@@ -13,6 +13,7 @@ anyhow = "1.0.43"
 fancy-regex = "0.7.1"
 Inflector = { version = "0.11.4", default-features = false }
 colored = "2.0.0"
+which = "4.2.2"
 
 [profile.release]
 lto = "fat"
