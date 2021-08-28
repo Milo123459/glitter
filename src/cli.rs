@@ -242,15 +242,25 @@ pub fn push(
 			let custom_task = &tasks.iter().find(|task| task.name == hook);
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
-                    if !no_verify {
-					println!("{} {}", "$".green().bold(), cmd);
-                    }
+					if !no_verify {
+						println!("{} {}", "$".green().bold(), cmd);
+					}
 					if !dry && !no_verify {
 						let splitted = cmd.split(' ').collect::<Vec<&str>>();
-						let status = Command::new(splitted.first().unwrap())
+						let command = which::which(splitted.first().unwrap());
+						if command.is_err() {
+							println!(
+								"{} Cannot find binary `{}`",
+								"Fatal".red(),
+								&&(*(*splitted.first().unwrap()))
+							);
+							std::process::exit(1);
+						}
+						let status = Command::new(command.unwrap())
 							.args(&splitted[1..])
-							.status();
-						if status.is_err() || !status.unwrap().success() {
+							.status()
+							.unwrap();
+						if !&status.clone().success() {
 							std::process::exit(1);
 						}
 					}
@@ -427,8 +437,13 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 						for cmd in e {
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
 							println!("{} {}", "$".green().bold(), cmd);
+							let command = which::which(splitted.first().unwrap());
+							if command.is_err() {
+								println!("{} Cannot find binary `{}`", "Fatal".red(), &&(*(*splitted.first().unwrap())));
+								std::process::exit(1);
+							}
 							if !dry {
-								Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
+								Command::new(command.unwrap()).args(&splitted[1..]).envs(std::env::vars()).status()?;
 							}
 
 						}
@@ -510,8 +525,13 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 						for cmd in e {
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
 							println!("{} {}", "$".green().bold(), cmd);
+							let command = which::which(splitted.first().unwrap());
+							if command.is_err() {
+								println!("{} Cannot find binary `{}`", "Fatal".red(), &&(*(*splitted.first().unwrap())));
+								std::process::exit(1);
+							}
 							if !dry {
-								Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
+								Command::new(command.unwrap()).args(&splitted[1..]).envs(std::env::vars()).status()?;
 							}
 
 						}
