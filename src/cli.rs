@@ -442,8 +442,8 @@ pub fn cc(config: GlitterRc, args: Vec<String>, dry: bool) -> anyhow::Result<()>
 				}
 				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
 				if cmd.into_iter().any(|
-					s| s == args.arguments.first().unwrap().to_lowercase()) {
-					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+					s| s == args.first().unwrap().to_lowercase()) {
+					let exec = exec_cmds.into_iter().filter(|x| x.name == args.first().unwrap().to_lowercase()).map(|x| x.execute);
 					 for task in exec {
 						let e = task.to_owned().unwrap();
 						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
