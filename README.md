@@ -16,6 +16,10 @@ Git tooling of the future
 </h3>
 <h1></h1>
 
+## New feature: Glitter hooks!
+
+Click [here](#--glitter-hooks) for more info!
+
 ## ❯ 👀 Features
 - Config files (with defaults!)
 - Fast
