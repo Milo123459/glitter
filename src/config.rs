@@ -6,13 +6,7 @@ fn commit_msg() -> String {
 }
 
 #[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq, Clone)]
-pub struct Arguments {
-	/// type of action. run the `action` / `actions` action to see available actions.
-	pub action: String,
-
-	/// arguments to action
-	pub arguments: Vec<String>,
-
+pub struct BaseCli {
 	/// path to glitterrc
 	#[structopt(
 		parse(from_os_str),
@@ -28,50 +22,44 @@ pub struct Arguments {
 
 	/// dry run. aka don't run git commands
 	#[structopt(long, short, visible_alias = "d")]
-	pub(crate) dry: Option<Option<bool>>,
+	pub dry: Option<Option<bool>>,
 
 	/// if the branch is not on the hosted provider, call this
 	#[structopt(long, visible_alias = "nh")]
-	pub(crate) nohost: Option<Option<bool>>,
+	pub nohost: Option<Option<bool>>,
 
 	/// don't follow the commit template specified and just use $1+
 	#[structopt(long, short)]
-	pub(crate) raw: Option<Option<bool>>,
+	pub raw: Option<Option<bool>>,
 
 	/// don't run any glitter hooks
 	#[structopt(long = "no-verify", short = "n")]
-	pub(crate) no_verify: Option<Option<bool>>,
+	pub no_verify: Option<Option<bool>>,
 }
-// for the usage of --dry, --nohost, --raw, --no-verify (shorthand, ie, without a value)
-impl Arguments {
-	pub fn dry(&self) -> bool {
-		match self.dry {
-			None => false,
-			Some(None) => true,
-			Some(Some(a)) => a,
-		}
-	}
-	pub fn nohost(&self) -> bool {
-		match self.nohost {
-			None => false,
-			Some(None) => true,
-			Some(Some(a)) => a,
-		}
-	}
-	pub fn raw(&self) -> bool {
-		match self.raw {
-			None => false,
-			Some(None) => true,
-			Some(Some(a)) => a,
-		}
-	}
-	pub fn no_verify(&self) -> bool {
-		match self.no_verify {
-			None => false,
-			Some(None) => true,
-			Some(Some(a)) => a,
-		}
-	}
+
+#[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq, Clone)]
+pub enum Arguments {
+	Push {
+		arguments: Vec<String>,
+
+		#[structopt(flatten)]
+		base_cli: BaseCli,
+	},
+
+	Undo {
+		#[structopt(default_value = "1")]
+		how_many: i32,
+
+		#[structopt(flatten)]
+		base_cli: BaseCli,
+	},
+
+	Cc {
+		arguments: Vec<String>,
+
+		#[structopt(flatten)]
+		base_cli: BaseCli,
+	},
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -92,8 +80,8 @@ pub struct CustomTaskOptions {
 pub struct GlitterRc {
 	#[serde(default = "commit_msg")]
 	pub commit_message: String,
-	pub arguments: Option<Vec<Arguments>>,
 	pub commit_message_arguments: Option<Vec<CommitMessageArguments>>,
+	pub arguments: Option<Vec<Arguments>>,
 	pub fetch: Option<bool>,
 	pub custom_tasks: Option<Vec<CustomTaskOptions>>,
 	pub hooks: Option<Vec<String>>,
@@ -104,26 +92,29 @@ pub struct GlitterRc {
 mod tests {
 	use std::path::PathBuf;
 
+	use crate::config::BaseCli;
+
 	use super::{commit_msg, Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc};
 
 	#[test]
 	fn check_commit_message() {
 		// getting 100% using this trick as we kinda cant test structs that dont have impls
 
-		let args = Arguments {
-			action: "actions".to_string(),
+		let args = Arguments::Push {
 			arguments: vec![
 				"test".to_string(),
 				"a".to_string(),
 				"b".to_string(),
 				"c".to_string(),
 			],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
+			base_cli: BaseCli {
+				rc_path: PathBuf::new(),
+				branch: Some(String::new()),
+				dry: Some(Some(false)),
+				nohost: Some(Some(false)),
+				raw: Some(Some(false)),
+				no_verify: Some(Some(false)),
+			},
 		};
 
 		let config = GlitterRc {
@@ -150,20 +141,21 @@ mod tests {
 		assert_eq!(commit_msg(), "$1+".to_string());
 		assert_eq!(
 			args,
-			Arguments {
-				action: "actions".to_string(),
+			Arguments::Push {
 				arguments: vec![
 					"test".to_string(),
 					"a".to_string(),
 					"b".to_string(),
 					"c".to_string(),
 				],
-				rc_path: PathBuf::new(),
-				branch: Some(String::new()),
-				dry: Some(Some(false)),
-				nohost: Some(Some(false)),
-				raw: Some(Some(false)),
-				no_verify: Some(Some(false))
+				base_cli: BaseCli {
+					rc_path: PathBuf::new(),
+					branch: Some(String::new()),
+					dry: Some(Some(false)),
+					nohost: Some(Some(false)),
+					raw: Some(Some(false)),
+					no_verify: Some(Some(false))
+				}
 			}
 		);
 		assert_eq!(

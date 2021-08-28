@@ -1,9 +1,9 @@
-use crate::config::{Arguments, CustomTaskOptions, GlitterRc};
+use crate::config::{Arguments, BaseCli, CustomTaskOptions, GlitterRc};
 use colored::*;
 use fancy_regex::Regex;
 use inflector::Inflector;
 use std::io::{stdin, Error};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 // this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
@@ -15,7 +15,7 @@ macro_rules! match_patterns {
     }
   }
 
-fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<String> {
+fn get_commit_message(config: &GlitterRc, args: Vec<String>) -> anyhow::Result<String> {
 	let splitted = config.commit_message.split('$').skip(1);
 
 	let mut result = String::from(&config.commit_message);
@@ -23,7 +23,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 	for val in splitted {
 		if val.len() >= 2 && String::from(val.chars().nth(1).unwrap()) == *"+" {
 			let idx = val.chars().next().unwrap().to_digit(10).unwrap() - 1;
-			let rest = &args.arguments[idx as usize..];
+			let rest = &args[idx as usize..];
 
 			if rest.is_empty() {
 				return Err(anyhow::Error::new(Error::new(
@@ -42,7 +42,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 		} else {
 			let idx = val.split("").nth(1).unwrap().parse::<usize>().unwrap() - 1;
 
-			if args.arguments.len() <= idx {
+			if args.len() <= idx {
 				return Err(anyhow::Error::new(Error::new(
 					std::io::ErrorKind::InvalidInput,
 					format!(
@@ -52,7 +52,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 				)));
 			}
 
-			let mut val_ = (&args.arguments[idx]).clone();
+			let mut val_ = (&args[idx]).clone();
 			if let Some(ref args_) = config.commit_message_arguments {
 				for arg in args_.iter().as_ref() {
 					if arg.argument == ((idx + 1) as i32) {
@@ -145,12 +145,13 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 
 pub fn push(
 	config: GlitterRc,
-	args: Arguments,
+	args: Vec<String>,
 	dry: bool,
 	branch: Option<String>,
 	nohost: bool,
 	raw: bool,
 	no_verify: bool,
+	rc_path: PathBuf,
 ) -> anyhow::Result<()> {
 	let is_git_folder = Path::new(".git").exists();
 	if !is_git_folder {
@@ -188,20 +189,31 @@ pub fn push(
 	}
 	let mut _result = String::new();
 	if !raw {
-		_result = get_commit_message(&config, &args)?;
+		_result = get_commit_message(&config, args)?;
 	} else {
 		let raw_args = args.clone();
+		let raw_branch = branch.clone();
 		_result = get_commit_message(
 			&GlitterRc {
 				commit_message: "$1+".to_owned(),
-				arguments: Some(vec![args]),
+				arguments: Some(vec![Arguments::Push {
+					arguments: args,
+					base_cli: BaseCli {
+						rc_path,
+						branch: raw_branch,
+						dry: Some(Some(dry)),
+						nohost: Some(Some(nohost)),
+						raw: Some(Some(raw)),
+						no_verify: Some(Some(no_verify)),
+					},
+				}]),
 				commit_message_arguments: None,
 				fetch: None,
 				custom_tasks: None,
 				__default: None,
 				hooks: None,
 			},
-			&raw_args,
+			raw_args,
 		)?
 	}
 	if !dry {
@@ -229,9 +241,7 @@ pub fn push(
 		Command::new("git").arg("add").arg(".").status()?;
 	}
 	// glitter hooks
-	if !dry
-		&& !no_verify
-		&& config.custom_tasks.is_some()
+	if config.custom_tasks.is_some()
 		&& config.hooks.is_some()
 		&& !config.hooks.clone().unwrap().is_empty()
 	{
@@ -250,12 +260,14 @@ pub fn push(
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
 					println!("{} {}", "$".green().bold(), cmd);
-					let splitted = cmd.split(' ').collect::<Vec<&str>>();
-					let status = Command::new(splitted.first().unwrap())
-						.args(&splitted[1..])
-						.status();
-					if status.is_err() || !status.unwrap().success() {
-						std::process::exit(1);
+					if !dry && !no_verify {
+						let split = cmd.split(' ').collect::<Vec<&str>>();
+						let status = Command::new(split.first().unwrap())
+							.args(&split[1..])
+							.status();
+						if status.is_err() || !status.unwrap().success() {
+							std::process::exit(1);
+						}
 					}
 				}
 			} else {
@@ -370,9 +382,9 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
 	Ok(())
 }
 
-pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
-	if args.arguments.first().is_some() {
-		match_patterns! { &*args.arguments.first().unwrap().to_lowercase(), patterns,
+pub fn cc(config: GlitterRc, args: Vec<String>, dry: bool) -> anyhow::Result<()> {
+	if args.first().is_some() {
+		match_patterns! { &*args.first().unwrap().to_lowercase(), patterns,
 			"list" => {
 				let mut cmds: Vec<CustomTaskOptions> = vec![];
 				if let Some(v) = config.custom_tasks {
@@ -410,8 +422,8 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 				};
 				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
 				if cmd.into_iter().any(|
-					s| s == args.arguments.first().unwrap().to_lowercase()) {
-					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
+					s| s == args.first().unwrap().to_lowercase()) {
+					let exec = exec_cmds.into_iter().filter(|x| x.name == args.first().unwrap().to_lowercase()).map(|x| x.execute);
 					if dry {
 					println!(
 						"{} {} {}",
@@ -456,372 +468,4 @@ pub fn undo(dry: bool) -> anyhow::Result<()> {
 			.status()?;
 	}
 	Ok(())
-}
-// this is the function behind matching commands (as in actions)
-pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
-	let cmd = &args.action;
-	let dry = args.clone().dry();
-	let branch = args.clone().branch;
-	let nohost = args.clone().nohost();
-	let raw_mode = args.clone().raw();
-	let is_default = config.__default.is_some();
-	let no_verify = args.clone().no_verify();
-	if is_default {
-		println!("{} Using default config", "Warn".yellow())
-	}
-	// custom macro for the patterns command
-	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, branch, nohost, raw_mode, no_verify)?,
-		"action" => action(patterns)?,
-		"actions" => action(patterns)?,
-		"cc" => cc(config, args, dry)?,
-		"undo" => undo(dry)?,
-		_ => {
-				let mut cmds: Vec<CustomTaskOptions> = vec![];
-				let mut exec_cmds: Vec<CustomTaskOptions> = vec![];
-				if let Some(v) = config.custom_tasks {
-					cmds = v.clone();
-					exec_cmds = v;
-				};
-				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
-				if cmd.into_iter().any(|
-					s| s == args.action.to_lowercase()) {
-					let exec = exec_cmds.into_iter().filter(|x| x.name == args.action.to_lowercase()).map(|x| x.execute);
-					if dry {
-					println!(
-						"{} {} {}",
-						"Dry run.".yellow(),
-						"Won't".yellow().underline(),
-						"execute commands specified.".yellow()
-					);
-				}
-					 for task in exec {
-						let e = task.to_owned().unwrap();
-						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
-						for cmd in e {
-							let splitted = cmd.split(' ').collect::<Vec<&str>>();
-							println!("{} {}", "$".green().bold(), cmd);
-							if !dry {
-								Command::new(splitted.first().unwrap()).args(&splitted[1..]).status()?;
-							}
-
-						}
-					};
-				} else {
-					return Err(anyhow::Error::new(Error::new(
-						std::io::ErrorKind::InvalidInput,
-						"This is not a valid action or custom command.",
-					)));
-				};
-
-	}
-	};
-	Ok(())
-}
-// tests
-#[cfg(test)]
-mod tests {
-	use crate::cli::action;
-	use crate::match_cmds;
-	use std::path::PathBuf;
-
-	use crate::config::{Arguments, CommitMessageArguments, CustomTaskOptions, GlitterRc};
-
-	use super::get_commit_message;
-
-	#[test]
-	fn basic() {
-		let args = Arguments {
-			action: "push".to_string(),
-			arguments: vec![
-				"test".to_string(),
-				"a".to_string(),
-				"b".to_string(),
-				"c".to_string(),
-			],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1($2): $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert_eq!(get_commit_message(&config, &args).unwrap(), "test(a): b c")
-	}
-
-	#[test]
-	fn reuse_arguments() {
-		let args = Arguments {
-			action: "push".to_string(),
-			arguments: vec![
-				"test".to_string(),
-				"a".to_string(),
-				"b".to_string(),
-				"c".to_string(),
-			],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1($2): $3+ : $2 | $1+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert_eq!(
-			get_commit_message(&config, &args).unwrap(),
-			"test(a): b c : a | test a b c"
-		)
-	}
-
-	#[test]
-	fn less_than_required_args() {
-		let args = Arguments {
-			action: "push".to_string(),
-			arguments: vec!["test".to_string(), "a".to_string()],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let args_2 = Arguments {
-			action: "push".to_string(),
-			arguments: vec!["test".to_string()],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1($2): $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		let config_2 = GlitterRc {
-			commit_message: "$1($2): $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert!(get_commit_message(&config, &args).is_err());
-		assert!(get_commit_message(&config_2, &args_2).is_err());
-	}
-
-	#[test]
-	fn no_commit_message_format() {
-		let args = Arguments {
-			action: "push".to_string(),
-			arguments: vec!["test".to_string(), "a".to_string()],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			// "$1+" is the default
-			commit_message: "$1+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert!(get_commit_message(&config, &args).is_ok())
-	}
-
-	#[test]
-	fn commit_message_arguments() {
-		let args = Arguments {
-			action: "push".to_string(),
-			arguments: vec!["feat".to_string(), "test".to_string(), "tests".to_string()],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1: $2: $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: Some(vec![CommitMessageArguments {
-				argument: 1,
-				case: Some("snake".to_string()),
-				type_enums: Some(vec![
-					"fix".to_owned(),
-					"feat".to_owned(),
-					"chore".to_owned(),
-				]),
-			}]),
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert_eq!(
-			get_commit_message(&config, &args).unwrap(),
-			"feat: test: tests"
-		)
-	}
-
-	#[test]
-	fn test_action() {
-		assert!(action(vec!["test"]).is_ok())
-	}
-
-	#[test]
-	fn matching_cmds() {
-		let args = Arguments {
-			action: "action".to_string(),
-			arguments: vec![
-				"test".to_string(),
-				"a".to_string(),
-				"b".to_string(),
-				"c".to_string(),
-			],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1($2): $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert!(match_cmds(args, config).is_ok());
-
-		let args = Arguments {
-			action: "actions".to_string(),
-			arguments: vec![
-				"test".to_string(),
-				"a".to_string(),
-				"b".to_string(),
-				"c".to_string(),
-			],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1($2): $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert!(match_cmds(args, config).is_ok());
-
-		let args = Arguments {
-			action: "fasdafsfsa".to_string(),
-			arguments: vec![
-				"test".to_string(),
-				"a".to_string(),
-				"b".to_string(),
-				"c".to_string(),
-			],
-			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
-			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
-			raw: Some(Some(false)),
-			no_verify: Some(Some(false)),
-		};
-
-		let config = GlitterRc {
-			commit_message: "$1($2): $3+".to_string(),
-			arguments: None,
-			commit_message_arguments: None,
-			fetch: None,
-			custom_tasks: Some(vec![CustomTaskOptions {
-				name: "fmt".to_owned(),
-				execute: Some(vec!["cargo fmt".to_owned()]),
-			}]),
-			__default: None,
-			hooks: None,
-		};
-
-		assert!(match_cmds(args, config).is_err());
-	}
 }
