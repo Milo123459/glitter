@@ -49,7 +49,7 @@ scoop install glitter
 
 **Linux**
 
-*This is a bash script that can install on **any** platform other then **windows**, not just linux.*
+*This is a bash script that can install on **any** platform other than **windows**, not just linux.*
 
 ```
 curl -fsSL https://raw.githubusercontent.com/Milo123459/glitter/master/install.sh | bash
