@@ -427,8 +427,8 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 						"execute commands specified.".yellow()
 					);
 				}
-				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
-				if cmd.into_iter().any(|
+
+				if cmds.into_iter().map(|x| x.name).any(|
 					s| s == args.arguments.first().unwrap().to_lowercase()) {
 					let exec = exec_cmds.into_iter().filter(|x| x.name == args.arguments.first().unwrap().to_lowercase()).map(|x| x.execute);
 					 for task in exec {
@@ -515,8 +515,8 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 						"execute commands specified.".yellow()
 					);
 				}
-				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
-				if cmd.into_iter().any(|
+
+				if cmds.into_iter().map(|x| x.name).any(|
 					s| s == args.action.to_lowercase()) {
 					let exec = exec_cmds.into_iter().filter(|x| x.name == args.action.to_lowercase()).map(|x| x.execute);
 					 for task in exec {
