@@ -261,6 +261,11 @@ pub fn push(
 							.status()
 							.unwrap();
 						if !&status.clone().success() {
+							println!(
+								"{} Custom task `{}` exited with an erroneous status code",
+								"Fatal".red(),
+								hook
+							);
 							std::process::exit(1);
 						}
 					}
