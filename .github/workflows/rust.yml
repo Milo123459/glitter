@@ -1,18 +1,18 @@
-name: Main workflow
+name: Rust CI
 on:
   push:
     paths-ignore:
-      - "docs/**"
       - "**.md"
   pull_request:
     paths-ignore:
-      - "docs/**"
       - "**.md"
 
+env:
+  CARGO_INCREMENTAL: 0
+
 jobs:
-  # Run the `rustfmt` code formatter
-  rustfmt:
-    name: Rustfmt [Formatter]
+  rust:
+    name: Rust CI
     runs-on: ubuntu-latest
     steps:
       - name: Setup | Checkout
@@ -26,112 +26,24 @@ jobs:
           profile: minimal
           components: rustfmt
 
-      - name: Setup | libdbus (ubuntu)
-        run: sudo apt-get install libdbus-1-dev
+      - name: Setup | Cache
+        uses: Swatinem/rust-cache@v1
 
       - name: Build | Format
-        run: cargo fmt --all -- --check
-
-  # Run the `clippy` linting tool
-  clippy:
-    name: Clippy [Linter]
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v2
-
-      # Cache files between builds
-      # - name: Setup | Cache Cargo
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: |
-      #       ~/.cargo/registry
-      #       ~/.cargo/git
-      #       target
-      #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup | libdbus (ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install libdbus-1-dev
-
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/cargo@v1
         with:
-          toolchain: stable
-          override: true
-          profile: minimal
-          components: clippy
+          command: fmt
+          args: --all -- --check
 
+      - name: Build | Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --workspace --locked
+          
       - name: Build | Lint
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --workspace --locked --all-targets --all-features
-
-  # Ensure that the project could be successfully compiled
-  cargo_check:
-    name: Compile
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v2
-
-      # Cache files between builds
-      # - name: Setup | Cache Cargo
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: |
-      #       ~/.cargo/registry
-      #       ~/.cargo/git
-      #       target
-      #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Build | Check
-        run: cargo check --workspace --locked
-
-  # Run tests on Linux, macOS, and Windows
-  # On both Rust stable and Rust nightly
-  test:
-    name: Test Suite
-    runs-on: ${{ matrix.os }}
-    needs: cargo_check # First check then run expansive tests
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        rust: [stable, nightly]
-    steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v2
         
-      # Cache files between builds
-      # - name: Setup | Cache Cargo
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: |
-      #       ~/.cargo/registry
-      #       ~/.cargo/git
-      #       target
-      #     key: ${{ runner.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      # Install all the required dependencies for testing
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
-
-      # Run the ignored tests that expect the above setup
-      - name: Build | Test
-        run: cargo test --workspace --locked --all-features -- -Z unstable-options --include-ignored
