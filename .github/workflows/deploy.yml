@@ -52,9 +52,9 @@ jobs:
             os: windows-latest
             name: glitter-aarch64-pc-windows-msvc.zip
 
-          - target: x86_64-unknown-freebsd
-            os: ubuntu-latest
-            name: glitter-x86_64-unknown-freebsd.tar.gz
+          # - target: x86_64-unknown-freebsd
+          #   os: ubuntu-latest
+          #   name: glitter-x86_64-unknown-freebsd.tar.gz
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -84,7 +84,7 @@ jobs:
         with:
           command: build
           args: --release --locked --target ${{ matrix.target }}
-          use-cross: false
+          use-cross: ${{ matrix.os == 'ubuntu-latest' }}
 
       - name: Post Build | Prepare artifacts [Windows]
         if: matrix.os == 'windows-latest'
