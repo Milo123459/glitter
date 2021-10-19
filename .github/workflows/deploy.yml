@@ -1,11 +1,11 @@
 name: Deploy
 on:
-  workflow_dispatch:
   push:
     tags:
       - "v*"
-# check out starship/starship - inspired by their workflow
+
 jobs:
+  # Build sources for every OS
   github_build:
     name: Build release binaries
     strategy:
@@ -23,6 +23,14 @@ jobs:
           - target: i686-unknown-linux-musl
             os: ubuntu-latest
             name: glitter-i686-unknown-linux-musl.tar.gz
+
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            name: glitter-aarch64-unknown-linux-musl.tar.gz
+
+          - target: arm-unknown-linux-musleabihf
+            os: ubuntu-latest
+            name: glitter-arm-unknown-linux-musleabihf.tar.gz
 
           - target: x86_64-apple-darwin
             os: macOS-latest
@@ -44,32 +52,42 @@ jobs:
             os: windows-latest
             name: glitter-aarch64-pc-windows-msvc.zip
 
+          - target: x86_64-unknown-freebsd
+            os: ubuntu-latest
+            name: glitter-x86_64-unknown-freebsd.tar.gz
+
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
       - name: Setup | Checkout
-        uses: actions/checkout@v2
-      - name: Setup | Install llvm and build-essential, cmake, cmake-doc, snapd and ninja-build
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt install llvm build-essential cmake cmake-doc ninja-build snapd
-      - name: Setup | Instal CC-Tool
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo snap install cc-tool --edge --devmode
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions/checkout@v2.3.5
+
+      # Cache files between builds
+      - name: Setup | Cache Cargo
+        uses: actions/cache@v2.1.6
         with:
-          toolchain: nightly
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Setup | Rust
+        uses: actions-rs/toolchain@v1.0.7
+        with:
+          toolchain: stable
           override: true
           profile: minimal
           target: ${{ matrix.target }}
+
       - name: Build | Build
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@v1.0.3
         # TODO: Remove this once it's the default
         env:
-           SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+          SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
         with:
           command: build
-          args: --release --target ${{ matrix.target }}
+          args: --release --locked --features tls-vendored --target ${{ matrix.target }}
+          use-cross: ${{ matrix.os == 'ubuntu-latest' }}
 
       - name: Post Build | Prepare artifacts [Windows]
         if: matrix.os == 'windows-latest'
@@ -78,6 +96,7 @@ jobs:
           strip glitter.exe
           7z a ../../../${{ matrix.name }} glitter.exe
           cd -
+
       - name: Post Build | Prepare artifacts [-nix]
         if: matrix.os != 'windows-latest'
         run: |
@@ -86,6 +105,7 @@ jobs:
           strip glitter || true
           tar czvf ../../../${{ matrix.name }} glitter
           cd -
+
       - name: Deploy | Upload artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -99,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup | Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0
 
@@ -118,10 +138,9 @@ jobs:
         run: |
           GO111MODULE=on go get github.com/git-chglog/git-chglog/cmd/git-chglog@0.9.1
           git-chglog -c .github/chglog/release.yml $(git describe --tags) > RELEASE.md
+
       - name: Build | Publish
         uses: softprops/action-gh-release@v1
         with:
           files: glitter-*/glitter-*
           body_path: RELEASE.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
