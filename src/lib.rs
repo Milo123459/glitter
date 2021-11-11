@@ -1,9 +1,9 @@
 pub mod cli;
 pub mod config;
 pub mod get_and_parse;
-
 use crate::cli::match_cmds;
 use config::Arguments;
+
 // this function will parse configuration from the get_and_parse file and pass it onto the cli
 pub fn run(args: Arguments) -> anyhow::Result<()> {
 	let config = get_and_parse::parse(&args.rc_path)?;
@@ -34,6 +34,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		run(args).unwrap();

@@ -41,8 +41,18 @@ pub struct Arguments {
 	/// don't run any glitter hooks
 	#[structopt(long = "no-verify", short = "n")]
 	pub(crate) no_verify: Option<Option<bool>>,
+
+	/// verbose mode: log the output of all commands run
+	#[structopt(long = "verbose", short = "v")]
+	pub(crate) verbose: Option<Option<bool>>,
 }
-// for the usage of --dry, --nohost, --raw, --no-verify (shorthand, ie, without a value)
+
+pub struct VerboseResponse {
+	pub provided: bool,
+	pub value: bool,
+}
+
+// for the usage shorthand things, ie, without a value
 impl Arguments {
 	pub fn dry(&self) -> bool {
 		match self.dry {
@@ -72,6 +82,22 @@ impl Arguments {
 			Some(Some(a)) => a,
 		}
 	}
+	pub fn verbose(&self) -> VerboseResponse {
+		match self.verbose {
+			None => VerboseResponse {
+				provided: false,
+				value: false,
+			},
+			Some(None) => VerboseResponse {
+				provided: true,
+				value: true,
+			},
+			Some(Some(a)) => VerboseResponse {
+				provided: true,
+				value: a,
+			},
+		}
+	}
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -97,7 +123,8 @@ pub struct GlitterRc {
 	pub fetch: Option<bool>,
 	pub custom_tasks: Option<Vec<CustomTaskOptions>>,
 	pub hooks: Option<Vec<String>>,
-	pub __default: Option<bool>,
+	pub __default: Option<bool>, // this really shouldn't be provided by a user, but it's here for backwards compatibility
+	pub verbose: Option<bool>,
 }
 // tests
 #[cfg(test)]
@@ -124,6 +151,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -145,6 +173,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert_eq!(commit_msg(), "$1+".to_string());
@@ -163,7 +192,8 @@ mod tests {
 				dry: Some(Some(false)),
 				nohost: Some(Some(false)),
 				raw: Some(Some(false)),
-				no_verify: Some(Some(false))
+				no_verify: Some(Some(false)),
+				verbose: Some(Some(false)),
 			}
 		);
 		assert_eq!(
@@ -186,7 +216,8 @@ mod tests {
 					execute: Some(vec!["cargo fmt".to_owned()])
 				}]),
 				__default: None,
-				hooks: None
+				hooks: None,
+				verbose: None
 			}
 		);
 	}

@@ -14,6 +14,7 @@ pub fn parse(path: &Path) -> anyhow::Result<GlitterRc> {
 			commit_message_arguments: None,
 			__default: Some(true),
 			hooks: None,
+			verbose: None,
 		})
 	} else {
 		let file = File::open(path)?;
@@ -64,7 +65,8 @@ mod tests {
 					}
 				]),
 				__default: None,
-				hooks: Some(vec![String::from("fmt"), String::from("lint")])
+				hooks: Some(vec![String::from("fmt"), String::from("lint")]),
+				verbose: None
 			}
 		)
 	}

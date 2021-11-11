@@ -5,6 +5,8 @@ use inflector::Inflector;
 use std::io::{stdin, Error};
 use std::path::Path;
 use std::process::Command;
+use terminal_spinners::{SpinnerBuilder, DOTS};
+
 // this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
     ($val:expr, $patterns_ident:ident, $($p:pat => $e:expr),*) => {
@@ -30,13 +32,13 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 					std::io::ErrorKind::InvalidInput,
 					format!(
 						"Argument {0} was not provided. Argument {0} is a rest argument.",
-						String::from(val).split("").collect::<Vec<_>>()[1]
+						val.split("").collect::<Vec<_>>()[1]
 					),
 				)));
 			}
 
 			result = result.replace(
-				&format!("${}+", String::from(val).split("").collect::<Vec<_>>()[1]),
+				&format!("${}+", val.split("").collect::<Vec<_>>()[1]),
 				&rest.join(" "),
 			);
 		} else {
@@ -47,7 +49,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 					std::io::ErrorKind::InvalidInput,
 					format!(
 						"Argument {} was not provided.",
-						String::from(val).split("").collect::<Vec<_>>()[1]
+						val.split("").collect::<Vec<_>>()[1]
 					),
 				)));
 			}
@@ -85,7 +87,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 									std::io::ErrorKind::InvalidInput,
 									format!(
 										"Argument {} did not have a valid type enum. Valid type enums are {}",
-										String::from(val).split("").collect::<Vec<_>>()[1],
+										val.split("").collect::<Vec<_>>()[1],
                                         valid_type_enums.join(", ").red().to_string()
 									),
 								)));
@@ -104,7 +106,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 									std::io::ErrorKind::InvalidInput,
 									format!(
 										"Argument {} did not have a valid type enum. Valid type enums are {}",
-										String::from(val).split("").collect::<Vec<_>>()[1],
+										val.split("").collect::<Vec<_>>()[1],
                                         valid_type_enums.join(", ").red().to_string()
 									),
 								)));
@@ -116,7 +118,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 
 			let captures = Regex::new(&format!(
 				"\\${}(?!\\+)",
-				String::from(val).split("").collect::<Vec<_>>()[1]
+				val.split("").collect::<Vec<_>>()[1]
 			))?;
 
 			let res = result.clone();
@@ -143,6 +145,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 	Ok(result)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn push(
 	config: GlitterRc,
 	args: Arguments,
@@ -151,6 +154,7 @@ pub fn push(
 	nohost: bool,
 	raw: bool,
 	no_verify: bool,
+	verbose: bool,
 ) -> anyhow::Result<()> {
 	let is_git_folder = Path::new(".git").exists();
 	if !is_git_folder {
@@ -200,6 +204,7 @@ pub fn push(
 				custom_tasks: None,
 				__default: None,
 				hooks: None,
+				verbose: None,
 			},
 			&raw_args,
 		)?
@@ -216,12 +221,7 @@ pub fn push(
 	}
 	if let Some(fetch) = config.fetch {
 		if fetch {
-			println!("{} git fetch", "$".green().bold());
-			if !dry {
-				Command::new("git").arg("fetch").status()?;
-			}
-
-			println!("{}", "".normal().clear().to_string());
+			run_cmd("git", vec!["fetch"], dry, verbose, None);
 		}
 	} // glitter hooks
 	if config.custom_tasks.is_some()
@@ -243,31 +243,14 @@ pub fn push(
 			if let Some(task) = custom_task {
 				for cmd in task.execute.clone().unwrap() {
 					if !no_verify {
-						println!("{} {}", "$".green().bold(), cmd);
-					}
-					if !dry && !no_verify {
 						let splitted = cmd.split(' ').collect::<Vec<&str>>();
-						let command = which::which(splitted.first().unwrap());
-						if command.is_err() {
-							println!(
-								"{} Cannot find binary `{}`",
-								"Fatal".red(),
-								&&(*(*splitted.first().unwrap()))
-							);
-							std::process::exit(1);
-						}
-						let status = Command::new(command.unwrap())
-							.args(&splitted[1..])
-							.status()
-							.unwrap();
-						if !&status.clone().success() {
-							println!(
-								"{} Custom task `{}` exited with an erroneous status code",
-								"Fatal".red(),
-								hook
-							);
-							std::process::exit(1);
-						}
+						run_cmd(
+							splitted.first().unwrap(),
+							splitted[1..].to_vec(),
+							dry || no_verify,
+							verbose,
+							None,
+						);
 					}
 				}
 			} else {
@@ -276,96 +259,53 @@ pub fn push(
 			}
 		}
 	}
-	println!("{} git add .", "$".green().bold());
-	if !dry {
-		Command::new("git").arg("add").arg(".").status()?;
-	}
-	println!(
-		"{} git commit -m {}",
-		"$".green().bold(),
-		format!(
-			"{}{}{}",
-			"`".green(),
-			_result.underline().green(),
-			"`".green()
-		)
-	);
+	run_cmd("git", vec!["add", "."], dry, verbose, None);
 
-	if !dry {
-		Command::new("git")
-			.arg("commit")
-			.arg("-m")
-			.arg(&_result)
-			.status()?;
-	}
+	run_cmd(
+		"git",
+		vec!["commit", "-m", &_result],
+		dry,
+		verbose,
+		Some(&*format!(
+			"git commit -m {}",
+			format!("{}{}{0}", "`".green(), _result.underline().green())
+		)),
+	);
+	let mut args = vec!["pull", "origin"];
 	if !nohost {
 		if let Some(br) = &branch {
-			println!(
-				"{} git pull origin {}",
-				"$".green().bold(),
-				br.to_string().green().underline()
-			);
-		} else {
-			println!(
-				"{} git pull origin {}",
-				"$".green().bold(),
-				current_branch
-					.split('\n')
-					.next()
-					.unwrap()
-					.green()
-					.underline()
-			)
+			args.push(&*br);
 		}
+		args.push(current_branch.split('\n').next().unwrap());
 	}
-	if !dry && !nohost {
+	run_cmd(
+		"git",
+		args.clone(),
+		dry,
+		verbose,
+		Some(&*format!(
+			"git pull origin {}",
+			args.clone().last().unwrap().green().bold()
+		)),
+	);
+
+	let mut args = vec!["push", "origin"];
+	if !nohost {
 		if let Some(br) = &branch {
-			Command::new("git")
-				.arg("pull")
-				.arg("origin")
-				.arg(br.to_lowercase())
-				.status()?;
+			args.push(&*br);
 		}
-		Command::new("git")
-			.arg("pull")
-			.arg("origin")
-			.arg(current_branch.split('\n').next().unwrap())
-			.status()?;
+		args.push(current_branch.split('\n').next().unwrap());
 	}
-	if let Some(br) = &branch {
-		println!(
-			"{}{} git push origin {}",
-			"".clear().to_string(),
-			"$".green().bold(),
-			br.green().underline()
-		);
-	} else {
-		println!(
-			"{} git push origin {}",
-			"$".green().bold(),
-			current_branch
-				.split('\n')
-				.next()
-				.unwrap()
-				.green()
-				.underline()
-		);
-	}
-	if !dry {
-		if let Some(br) = &branch {
-			Command::new("git")
-				.arg("push")
-				.arg("origin")
-				.arg(br.to_lowercase())
-				.status()?;
-		} else {
-			Command::new("git")
-				.arg("push")
-				.arg("origin")
-				.arg(current_branch.split('\n').next().unwrap())
-				.status()?;
-		}
-	}
+	run_cmd(
+		"git",
+		args.clone(),
+		dry,
+		verbose,
+		Some(&*format!(
+			"git push origin {}",
+			args.clone().last().unwrap().green().bold()
+		)),
+	);
 
 	Ok(())
 }
@@ -386,7 +326,7 @@ pub fn action(input: Vec<&str>) -> anyhow::Result<()> {
 	Ok(())
 }
 
-pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
+pub fn cc(config: GlitterRc, args: Arguments, dry: bool, verbose: bool) -> anyhow::Result<()> {
 	if args.arguments.first().is_some() {
 		match_patterns! { &*args.arguments.first().unwrap().to_lowercase(), patterns,
 			"list" => {
@@ -412,7 +352,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 				.collect::<Vec<_>>();
 				let cmd = cmds.into_iter().map(|x| x.name).collect::<Vec<String>>();
 				println!(
-					"Runnable commands:\n{}\nCustom tasks specified:\n{}",
+					"Runnable commands:\n{}\nCustom tasks specified:\n{}\nIf the output of custom tasks is valuable to you, please provide the -v flag when running.",
 					actions.join(", ").underline().bold(),
 					cmd.join(", ").underline().bold()
 				);
@@ -441,14 +381,19 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 						// because it is a vec, we must do a for loop to get each command  & execute if dry is false
 						for cmd in e {
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
-							println!("{} {}", "$".green().bold(), cmd);
 							let command = which::which(splitted.first().unwrap());
 							if command.is_err() {
 								println!("{} Cannot find binary `{}`", "Fatal".red(), &&(*(*splitted.first().unwrap())));
 								std::process::exit(1);
 							}
 							if !dry {
-								Command::new(command.unwrap()).args(&splitted[1..]).envs(std::env::vars()).status()?;
+								run_cmd(
+								splitted.first().unwrap(),
+								splitted[1..].to_vec(),
+								dry,
+								verbose,
+								None,
+							);
 							}
 
 						}
@@ -467,7 +412,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool) -> anyhow::Result<()> {
 	Ok(())
 }
 
-pub fn undo(dry: bool) -> anyhow::Result<()> {
+pub fn undo(dry: bool, verbose: bool) -> anyhow::Result<()> {
 	if dry {
 		println!(
 			"{} {} {}",
@@ -476,35 +421,35 @@ pub fn undo(dry: bool) -> anyhow::Result<()> {
 			"execute git commands.".yellow()
 		);
 	}
-	println!("{} git reset --soft HEAD~1", "$".green().bold());
-	if !dry {
-		Command::new("git")
-			.arg("reset")
-			.arg("--soft")
-			.arg("HEAD~1")
-			.status()?;
-	}
+	run_cmd("git", vec!["reset", "-soft", "HEAD~1"], dry, verbose, None);
 	Ok(())
 }
 // this is the function behind matching commands (as in actions)
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let cmd = &args.action;
-	let dry = args.clone().dry();
-	let branch = args.clone().branch;
-	let nohost = args.clone().nohost();
-	let raw_mode = args.clone().raw();
+	let dry = args.dry();
+	let nohost = args.nohost();
+	let raw_mode = args.raw();
 	let is_default = config.__default.is_some();
-	let no_verify = args.clone().no_verify();
+	let no_verify = args.no_verify();
+	let verbose = args.verbose();
+	let branch = args.clone().branch;
+	let verbose = if verbose.provided {
+		verbose.value
+	} else {
+		config.verbose.unwrap_or(false)
+	};
+
 	if is_default {
 		println!("{} Using default config", "Warn".yellow())
 	}
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, branch, nohost, raw_mode, no_verify)?,
+		"push" => push(config, args, dry, branch, nohost, raw_mode, no_verify, verbose)?,
 		"action" => action(patterns)?,
 		"actions" => action(patterns)?,
-		"cc" => cc(config, args, dry)?,
-		"undo" => undo(dry)?,
+		"cc" => cc(config, args, dry, verbose)?,
+		"undo" => undo(dry, verbose)?,
 		_ => {
 				let mut cmds: Vec<CustomTaskOptions> = vec![];
 				let mut exec_cmds: Vec<CustomTaskOptions> = vec![];
@@ -529,14 +474,19 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 						// because it is a vec, we must do a for loop to get each command & execute if dry is false
 						for cmd in e {
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
-							println!("{} {}", "$".green().bold(), cmd);
 							let command = which::which(splitted.first().unwrap());
 							if command.is_err() {
-								println!("{} Cannot find binary `{}`", "Fatal".red(), &&(*(*splitted.first().unwrap())));
+								println!("{} Cannot find binary `{}`", "Fatal".red(), splitted.first().unwrap());
 								std::process::exit(1);
 							}
 							if !dry {
-								Command::new(command.unwrap()).args(&splitted[1..]).envs(std::env::vars()).status()?;
+								run_cmd(
+									splitted.first().unwrap(),
+									splitted[1..].to_vec(),
+									dry,
+									verbose,
+									None,
+								);
 							}
 
 						}
@@ -552,6 +502,59 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	};
 	Ok(())
 }
+
+fn run_cmd(
+	command_name: &str,
+	args: Vec<&str>,
+	dry: bool,
+	verbose: bool,
+	spinner_message: Option<&str>,
+) {
+	let text = if let Some(msg) = spinner_message {
+		format!("{} {}", "$".green().bold(), msg)
+	} else {
+		format!(
+			"{} {} {}",
+			"$".bold().green(),
+			command_name,
+			&args.join(" ")
+		)
+	};
+	let spinner = SpinnerBuilder::new()
+		.spinner(&DOTS)
+		.text(format!(" {}", text))
+		.start();
+
+	if !dry {
+		let cmd_path = which::which(command_name).unwrap();
+		let mut command = Command::new(cmd_path);
+		command.args(&args);
+		command.envs(std::env::vars());
+		let output = command.output().unwrap();
+		spinner.text(text);
+		if output.status.success() {
+			spinner.done();
+		} else {
+			spinner.error();
+			println!(
+				"{} Command \"{} {}\" failed to run.",
+				"Fatal".red(),
+				command_name,
+				&args.join(" ")
+			);
+			command.status().unwrap();
+
+			std::process::exit(1);
+		}
+		if verbose {
+			command.status().unwrap();
+		}
+	} else {
+		spinner.text(text);
+		spinner.done();
+	}
+}
+
 // tests
 #[cfg(test)]
 mod tests {
@@ -579,6 +582,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -592,6 +596,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert_eq!(get_commit_message(&config, &args).unwrap(), "test(a): b c")
@@ -613,6 +618,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -626,6 +632,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert_eq!(
@@ -645,6 +652,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let args_2 = Arguments {
@@ -656,6 +664,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -669,6 +678,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		let config_2 = GlitterRc {
@@ -682,6 +692,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert!(get_commit_message(&config, &args).is_err());
@@ -699,6 +710,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -713,6 +725,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert!(get_commit_message(&config, &args).is_ok())
@@ -729,6 +742,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -750,6 +764,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert_eq!(
@@ -779,6 +794,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -792,6 +808,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert!(match_cmds(args, config).is_ok());
@@ -810,6 +827,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -823,6 +841,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert!(match_cmds(args, config).is_ok());
@@ -841,6 +860,7 @@ mod tests {
 			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
+			verbose: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -854,6 +874,7 @@ mod tests {
 			}]),
 			__default: None,
 			hooks: None,
+			verbose: None,
 		};
 
 		assert!(match_cmds(args, config).is_err());

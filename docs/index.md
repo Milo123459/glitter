@@ -20,6 +20,7 @@ commit_message_arguments?: Arguments[]: The array of commit message arguments.
 fetch?: Bool: Execute git fetch in commands.
 custom_tasks?: CustomTaskOptions[]: Custom tasks specified which can be executed via the cc command.
 hooks?: String[]: Things to run before `git commit`. You specify the name of a custom task defined in `custom_tasks`. The whole process will be aborted if the command returns exit status of 1
+verbose?: Bool: Defaults to false. This just gives the outputs of commands. The CLI flag takes priority over this value.
 ```
 
 Structures referenced:
