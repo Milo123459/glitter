@@ -6,7 +6,6 @@
 Git tooling of the future
 <h3>
 <h3 align="center">
-    <img src="https://codecov.io/gh/Milo123459/glitter/branch/master/graph/badge.svg">
     <a href="https://github.com/Milo123459/glitter/releases">
     <img src="https://img.shields.io/github/downloads/Milo123459/glitter/total.svg">
     </a>
@@ -15,6 +14,8 @@ Git tooling of the future
     <img src="https://www.codefactor.io/repository/github/milo123459/glitter/badge">
 </h3>
 <h1></h1>
+
+![Alt](https://repobeats.axiom.co/api/embed/94616a17e7b0081aad0b1634999ac54c23bd5e5c.svg "Repobeats analytics image")
 
 ## New feature: Glitter hooks!
 
