@@ -285,7 +285,7 @@ pub fn push(
 		verbose,
 		Some(&*format!(
 			"git pull origin {}",
-			args.clone().last().unwrap().green().bold()
+			args.clone().last().unwrap().green().underline()
 		)),
 	);
 
@@ -303,7 +303,7 @@ pub fn push(
 		verbose,
 		Some(&*format!(
 			"git push origin {}",
-			args.clone().last().unwrap().green().bold()
+			args.clone().last().unwrap().green().underline()
 		)),
 	);
 
