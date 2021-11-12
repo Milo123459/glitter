@@ -383,7 +383,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool, verbose: bool) -> anyho
 							let splitted = cmd.split(' ').collect::<Vec<&str>>();
 							let command = which::which(splitted.first().unwrap());
 							if command.is_err() {
-								println!("{} Cannot find binary `{}`", "Fatal".red(), &&(*(*splitted.first().unwrap())));
+								println!("{} Cannot find binary `{}`", "Fatal".red(), splitted.first().unwrap());
 								std::process::exit(1);
 							}
 							if !dry {
@@ -526,11 +526,19 @@ fn run_cmd(
 		.start();
 
 	if !dry {
-		let cmd_path = which::which(command_name).unwrap();
+		let cmd_path_result = which::which(command_name);
+		if cmd_path_result.is_err() {
+			println!("{} Cannot find binary `{}`", "Fatal".red(), command_name);
+			std::process::exit(1);
+		}
+		let cmd_path = cmd_path_result.unwrap();
 		let mut command = Command::new(cmd_path);
 		command.args(&args);
 		command.envs(std::env::vars());
-		let output = command.output().unwrap();
+		let output = command
+			.stdout(std::process::Stdio::piped())
+			.output()
+			.unwrap();
 		spinner.text(text);
 		if output.status.success() {
 			spinner.done();
@@ -542,7 +550,7 @@ fn run_cmd(
 				command_name,
 				&args.join(" ")
 			);
-			command.status().unwrap();
+			println!("{}", String::from_utf8_lossy(&output.stdout));
 
 			std::process::exit(1);
 		}
