@@ -528,6 +528,8 @@ fn run_cmd(
 	if !dry {
 		let cmd_path_result = which::which(command_name);
 		if cmd_path_result.is_err() {
+			spinner.text(text);
+			spinner.error();
 			println!("{} Cannot find binary `{}`", "Fatal".red(), command_name);
 			std::process::exit(1);
 		}
