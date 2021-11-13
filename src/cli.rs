@@ -421,7 +421,7 @@ pub fn undo(dry: bool, verbose: bool) -> anyhow::Result<()> {
 			"execute git commands.".yellow()
 		);
 	}
-	run_cmd("git", vec!["reset", "-soft", "HEAD~1"], dry, verbose, None);
+	run_cmd("git", vec!["reset", "--soft", "HEAD~1"], dry, verbose, None);
 	Ok(())
 }
 // this is the function behind matching commands (as in actions)
