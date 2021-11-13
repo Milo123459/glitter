@@ -557,7 +557,7 @@ fn run_cmd(
 			std::process::exit(1);
 		}
 		if verbose {
-			command.status().unwrap();
+			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
 	} else {
 		spinner.text(text);
