@@ -211,7 +211,7 @@ pub fn push(
 	}
 	if !dry {
 		println!(
-            "Commit message: {}. Is this correct? If correct please press enter, if not abort the process. (ctrl+c / cmd+c)",
+            "Commit message: {}. Is this correct? If correct please press enter, if not, abort the process. (ctrl+c / cmd+c)",
             format!("{}{}{}", "`".green(), _result.underline().green(), "`".green())
         );
 		// if they abort the process (cmd+c / ctrl+c), this will error and stop
