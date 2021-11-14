@@ -553,6 +553,7 @@ fn run_cmd(
 				&args.join(" ")
 			);
 			println!("{}", String::from_utf8_lossy(&output.stdout));
+			println!("{}", String::from_utf8_lossy(&output.stderr));
 
 			std::process::exit(1);
 		}
