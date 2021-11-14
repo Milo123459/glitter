@@ -145,7 +145,7 @@ dependencies = [
 
 [[package]]
 name = "glitter"
-version = "1.5.4"
+version = "1.5.5"
 dependencies = [
  "Inflector",
  "anyhow",
