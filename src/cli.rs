@@ -545,6 +545,16 @@ fn run_cmd(
 		if output.status.success() {
 			spinner.done();
 		} else {
+			if let Some(p) = args.first() {
+				if p == &"pull"
+					&& (String::from_utf8_lossy(&output.stdout)
+						.contains("fatal: couldn't find remote ref")
+						|| String::from_utf8_lossy(&output.stderr)
+							.contains("fatal: couldn't find remote ref"))
+				{
+					return;
+				}
+			}
 			spinner.error();
 			println!(
 				"{} Command \"{} {}\" failed to run.",
