@@ -2,9 +2,12 @@ use crate::config::{Arguments, CustomTaskOptions, GlitterRc};
 use colored::*;
 use fancy_regex::Regex;
 use inflector::Inflector;
+use ms::*;
+use std::convert::TryInto;
 use std::io::{stdin, Error};
 use std::path::Path;
 use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
 use terminal_spinners::{SpinnerBuilder, DOTS};
 
 // this is a macro that will return the patterns in match's
@@ -510,6 +513,7 @@ fn run_cmd(
 	verbose: bool,
 	spinner_message: Option<&str>,
 ) {
+	let start = get_current_epoch();
 	let text = if let Some(msg) = spinner_message {
 		format!("{} {}", "$".green().bold(), msg)
 	} else {
@@ -541,8 +545,19 @@ fn run_cmd(
 			.stdout(std::process::Stdio::piped())
 			.output()
 			.unwrap();
-		spinner.text(text);
+		spinner.text(text.clone());
 		if output.status.success() {
+			spinner.text(format!(
+				"{} {}",
+				text,
+				ms::ms!(
+					(get_current_epoch() - start)
+						.try_into()
+						.expect("MS conversion didn't work."),
+					true
+				)
+				.truecolor(54, 60, 71)
+			));
 			spinner.done();
 		} else {
 			if let Some(p) = args.first() {
@@ -571,9 +586,27 @@ fn run_cmd(
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
 	} else {
-		spinner.text(text);
+		spinner.text(format!(
+			"{} {}",
+			text,
+			ms::ms!(
+				(get_current_epoch() - start)
+					.try_into()
+					.expect("MS conversion didn't work."),
+				true
+			)
+			.truecolor(54, 60, 71)
+		));
 		spinner.done();
 	}
+}
+
+fn get_current_epoch() -> u128 {
+	let start = SystemTime::now();
+	let since_the_epoch = start
+		.duration_since(UNIX_EPOCH)
+		.expect("Time went backwards");
+	since_the_epoch.as_millis()
 }
 
 // tests

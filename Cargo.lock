@@ -151,6 +151,7 @@ dependencies = [
  "anyhow",
  "colored",
  "fancy-regex",
+ "ms",
  "serde",
  "serde_json",
  "structopt",
@@ -247,6 +248,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "ms"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa2357cf1951787260d78a39cbfefdda655196ccce6ed9e9697f950fa4dbea42"
+dependencies = [
+ "regex",
 ]
 
 [[package]]
