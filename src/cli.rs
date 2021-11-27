@@ -169,6 +169,7 @@ pub fn push(
 			),
 		)));
 	}
+	let start = get_current_epoch();
 	let current_branch = String::from_utf8(
 		Command::new("git")
 			.arg("branch")
@@ -308,6 +309,16 @@ pub fn push(
 			"git push origin {}",
 			args.clone().last().unwrap().green().underline()
 		)),
+	);
+
+	let end = get_current_epoch();
+	println!(
+		"Completed in {}",
+		ms::ms!(
+			(end - start).try_into().expect("Couldn't convert type"),
+			true
+		)
+		.green()
 	);
 
 	Ok(())
@@ -556,7 +567,7 @@ fn run_cmd(
 						.expect("MS conversion didn't work."),
 					true
 				)
-				.truecolor(54, 60, 71)
+				.truecolor(79, 88, 109)
 			));
 			spinner.done();
 		} else {
