@@ -271,8 +271,9 @@ pub fn push(
 		dry,
 		verbose,
 		Some(&*format!(
-			"git commit -m {}",
-			format!("{}{}{0}", "`".green(), _result.underline().green())
+			"git commit -m {}{}",
+			format!("{}{}{0}", "`".green(), _result.underline().green()),
+			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
 	let mut args = vec!["pull", "origin"];
@@ -288,8 +289,9 @@ pub fn push(
 		dry,
 		verbose,
 		Some(&*format!(
-			"git pull origin {}",
-			args.clone().last().unwrap().green().underline()
+			"git pull origin {}{}",
+			args.clone().last().unwrap().green().underline(),
+			if no_verify { "--no-verify" } else { "" }
 		)),
 	);
 
@@ -306,8 +308,9 @@ pub fn push(
 		dry,
 		verbose,
 		Some(&*format!(
-			"git push origin {}",
-			args.clone().last().unwrap().green().underline()
+			"git push origin {}{}",
+			args.clone().last().unwrap().green().underline(),
+			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
 
