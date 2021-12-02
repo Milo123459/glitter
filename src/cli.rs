@@ -267,7 +267,12 @@ pub fn push(
 
 	run_cmd(
 		"git",
-		vec!["commit", "-m", &_result],
+		vec![
+			"commit",
+			"-m",
+			&_result,
+			if no_verify { " --no-verify" } else { "" },
+		],
 		dry,
 		verbose,
 		Some(&*format!(
@@ -283,6 +288,9 @@ pub fn push(
 		}
 		args.push(current_branch.split('\n').next().unwrap());
 	}
+	if no_verify {
+		args.push("--no-verify")
+	};
 	run_cmd(
 		"git",
 		args.clone(),
@@ -302,6 +310,9 @@ pub fn push(
 		}
 		args.push(current_branch.split('\n').next().unwrap());
 	}
+	if no_verify {
+		args.push("--no-verify")
+	};
 	run_cmd(
 		"git",
 		args.clone(),
