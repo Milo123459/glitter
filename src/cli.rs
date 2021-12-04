@@ -264,15 +264,13 @@ pub fn push(
 		}
 	}
 	run_cmd("git", vec!["add", "."], dry, verbose, None);
-
+	let mut commit_args = vec!["commit", "-m", &_result];
+	if no_verify {
+		commit_args.push("--no-verify")
+	}
 	run_cmd(
 		"git",
-		vec![
-			"commit",
-			"-m",
-			&_result,
-			if no_verify { " --no-verify" } else { "" },
-		],
+		commit_args,
 		dry,
 		verbose,
 		Some(&*format!(
