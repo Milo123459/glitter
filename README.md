@@ -17,10 +17,6 @@ Git tooling of the future
 
 ![Alt](https://repobeats.axiom.co/api/embed/94616a17e7b0081aad0b1634999ac54c23bd5e5c.svg "Repobeats analytics image")
 
-## New feature: Glitter hooks!
-
-Click [here](#--glitter-hooks) for more info!
-
 ## ❯ 👀 Features
 - Config files (with defaults!)
 - Fast
@@ -28,7 +24,7 @@ Click [here](#--glitter-hooks) for more info!
 - Friendly errors (how to fix them included!)
 - Multi branch support (defaults to the one you are on!)
 - Beautiful, as if it just rolled in **Glitter**!
-- Glitter Hooks (Git hooks but Glitter)
+- Glitter Hooks (Git hooks natively built into Glitter)
 
 ## ❯ 📚 Documentation
 
