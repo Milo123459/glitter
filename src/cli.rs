@@ -301,8 +301,8 @@ pub fn push(
 		verbose,
 		Some(&*format!(
 			"git pull origin {}{}",
-			args.clone().get(1).unwrap().green().underline(),
-			if no_verify { "--no-verify" } else { "" }
+			args.clone().get(2).unwrap().green().underline(),
+			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
 
@@ -323,7 +323,7 @@ pub fn push(
 		verbose,
 		Some(&*format!(
 			"git push origin {}{}",
-			args.clone().get(1).unwrap().green().underline(),
+			args.clone().get(2).unwrap().green().underline(),
 			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
