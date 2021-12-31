@@ -595,6 +595,7 @@ fn run_cmd(
 						|| String::from_utf8_lossy(&output.stderr)
 							.contains("fatal: couldn't find remote ref"))
 				{
+					spinner.warn();
 					return;
 				}
 			}
