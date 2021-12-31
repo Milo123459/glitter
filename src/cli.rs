@@ -343,7 +343,7 @@ pub fn push(
 				format!("{}{}{0}", "`".green(), sha.green())
 			)),
 		);
-		println!("{:?}", diff);
+		println!("{:?}", diff.clone());
 
 		if let Some(diff) = diff {
 			let split = diff.split('\n');
