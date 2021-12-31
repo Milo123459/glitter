@@ -273,7 +273,7 @@ pub fn push(
 	if no_verify {
 		commit_args.push("--no-verify")
 	}
-	let out = run_cmd(
+	run_cmd(
 		"git",
 		commit_args,
 		dry,
@@ -284,11 +284,6 @@ pub fn push(
 			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
-	let mut sha: Option<String> = None;
-	if let Some(output) = out {
-		let mut splitted = output.split(' ');
-		sha = Some(splitted.nth(1).unwrap().replace(']', ""));
-	}
 	let mut args = vec!["pull", "origin"];
 	if !nohost {
 		if let Some(br) = &branch {
@@ -332,44 +327,6 @@ pub fn push(
 			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
-	if let Some(sha) = sha {
-		let diff = run_cmd(
-			"git",
-			vec!["diff", &sha, "--stat"],
-			dry,
-			verbose,
-			Some(&*format!(
-				"git diff {} --stat",
-				format!("{}{}{0}", "`".green(), sha.green())
-			)),
-		);
-
-		if let Some(diff) = diff {
-			let split = diff.split('\n');
-			let keys = split
-				.last()
-				.unwrap()
-				.split(',')
-				.into_iter()
-				.map(|key| key.trim())
-				.skip(1)
-				.collect::<Vec<&str>>();
-			println!(
-				"Statistics for commit {}: {} {}",
-				format!("{}{}{0}", "`".green(), sha.green()),
-				format!(
-					"{}{}",
-					"+".green().bold(),
-					keys.get(0).unwrap().split(' ').next().unwrap().green()
-				),
-				format!(
-					"{}{}",
-					"-".red().bold(),
-					keys.get(1).unwrap().split(' ').next().unwrap().red()
-				)
-			)
-		}
-	}
 
 	let end = get_current_epoch();
 	println!(
@@ -583,7 +540,7 @@ fn run_cmd(
 	dry: bool,
 	verbose: bool,
 	spinner_message: Option<&str>,
-) -> Option<String> {
+) {
 	let start = get_current_epoch();
 	let text = if let Some(msg) = spinner_message {
 		format!("{} {}", "$".green().bold(), msg)
@@ -639,7 +596,7 @@ fn run_cmd(
 							.contains("fatal: couldn't find remote ref"))
 				{
 					spinner.warn();
-					return None;
+					return;
 				}
 			}
 			spinner.error();
@@ -657,7 +614,6 @@ fn run_cmd(
 		if verbose {
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
-		return Some(String::from_utf8_lossy(&output.stdout).to_string());
 	} else {
 		spinner.text(format!(
 			"{} {}",
@@ -671,7 +627,6 @@ fn run_cmd(
 			.truecolor(54, 60, 71)
 		));
 		spinner.done();
-		None
 	}
 }
 
