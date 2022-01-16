@@ -551,13 +551,12 @@ fn run_cmd(
 	};
 	let spinner = SpinnerBuilder::new()
 		.spinner(&DOTS)
-		.text(format!(" {}", text))
+		.text(text.clone())
 		.start();
 
 	if !dry {
 		let cmd_path_result = which::which(command_name);
 		if cmd_path_result.is_err() {
-			spinner.text(text);
 			spinner.error();
 			println!("{} Cannot find binary `{}`", "Fatal".red(), command_name);
 			std::process::exit(1);
@@ -570,7 +569,6 @@ fn run_cmd(
 			.stdout(std::process::Stdio::piped())
 			.output()
 			.unwrap();
-		spinner.text(text.clone());
 		if output.status.success() {
 			spinner.text(format!(
 				"{} {}",
