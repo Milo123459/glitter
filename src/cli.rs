@@ -91,7 +91,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 									format!(
 										"Argument {} did not have a valid type enum. Valid type enums are {}",
 										val.split("").collect::<Vec<_>>()[1],
-                                        valid_type_enums.join(", ").red().to_string()
+                                        valid_type_enums.join(", ").red()
 									),
 								)));
 							}
@@ -110,7 +110,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 									format!(
 										"Argument {} did not have a valid type enum. Valid type enums are {}",
 										val.split("").collect::<Vec<_>>()[1],
-                                        valid_type_enums.join(", ").red().to_string()
+                                        valid_type_enums.join(", ").red()
 									),
 								)));
 							}
@@ -163,10 +163,7 @@ pub fn push(
 	if !is_git_folder {
 		return Err(anyhow::Error::new(Error::new(
 			std::io::ErrorKind::InvalidInput,
-			format!(
-				"{} This is not a git repository.",
-				"Fatal".red().to_string()
-			),
+			format!("{} This is not a git repository.", "Fatal".red()),
 		)));
 	}
 	let start = get_current_epoch();
@@ -216,7 +213,7 @@ pub fn push(
 	if !dry {
 		println!(
 			"Commit message: {}",
-			format!(
+			format_args!(
 				"{}{}{}",
 				"`".green(),
 				_result.underline().green(),
@@ -280,7 +277,7 @@ pub fn push(
 		verbose,
 		Some(&*format!(
 			"git commit -m {}{}",
-			format!("{}{}{0}", "`".green(), _result.underline().green()),
+			format_args!("{}{}{0}", "`".green(), _result.underline().green()),
 			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
