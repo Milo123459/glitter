@@ -551,7 +551,7 @@ fn run_cmd(
 	};
 	let spinner = SpinnerBuilder::new()
 		.spinner(&DOTS)
-		.text(format!(" {}", text))
+		.text(format!(" {}", text)) // we add a space so that it doesn't make the text on top of the dots
 		.start();
 
 	if !dry {
