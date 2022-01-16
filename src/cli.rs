@@ -551,7 +551,7 @@ fn run_cmd(
 	};
 	let spinner = SpinnerBuilder::new()
 		.spinner(&DOTS)
-		.text(text.clone())
+		.text(format!(" {}", text))
 		.start();
 
 	if !dry {
