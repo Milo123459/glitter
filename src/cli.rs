@@ -590,6 +590,19 @@ fn run_cmd(
 						|| String::from_utf8_lossy(&output.stderr)
 							.contains("fatal: couldn't find remote ref"))
 				{
+					spinner.text(format!(
+						"{} {} {}",
+						text,
+						ms::ms!(
+							(get_current_epoch() - start)
+								.try_into()
+								.expect("MS conversion didn't work."),
+							true
+						)
+						.truecolor(79, 88, 109),
+						"| This branch does not exist on the remote repository."
+							.truecolor(79, 88, 109)
+					));
 					spinner.warn();
 					return;
 				}
