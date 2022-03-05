@@ -154,7 +154,6 @@ pub fn push(
 	args: Arguments,
 	dry: bool,
 	branch: Option<String>,
-	nohost: bool,
 	raw: bool,
 	no_verify: bool,
 	verbose: bool,
@@ -279,12 +278,11 @@ pub fn push(
 		)),
 	);
 	let mut args = vec!["pull", "origin"];
-	if !nohost {
-		if let Some(br) = &branch {
-			args.push(&*br);
-		}
-		args.push(current_branch.split('\n').next().unwrap());
+	if let Some(br) = &branch {
+		args.push(&*br);
 	}
+	args.push(current_branch.split('\n').next().unwrap());
+
 	if no_verify {
 		args.push("--no-verify")
 	};
@@ -301,12 +299,12 @@ pub fn push(
 	);
 
 	let mut args = vec!["push", "origin"];
-	if !nohost {
-		if let Some(br) = &branch {
-			args.push(&*br);
-		}
-		args.push(current_branch.split('\n').next().unwrap());
+
+	if let Some(br) = &branch {
+		args.push(&*br);
 	}
+	args.push(current_branch.split('\n').next().unwrap());
+
 	if no_verify {
 		args.push("--no-verify")
 	};
@@ -447,7 +445,6 @@ pub fn undo(dry: bool, verbose: bool) -> anyhow::Result<()> {
 pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let cmd = &args.action;
 	let dry = args.dry();
-	let nohost = args.nohost();
 	let raw_mode = args.raw();
 	let no_verify = args.no_verify();
 	let verbose = args.verbose();
@@ -459,7 +456,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	};
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, branch, nohost, raw_mode, no_verify, verbose)?,
+		"push" => push(config, args, dry, branch, raw_mode, no_verify, verbose)?,
 		"action" => action(patterns)?,
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry, verbose)?,
@@ -644,7 +641,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -680,7 +676,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -714,7 +709,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -726,7 +720,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -772,7 +765,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -804,7 +796,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -856,7 +847,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -889,7 +879,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -922,7 +911,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),

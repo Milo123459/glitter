@@ -26,13 +26,9 @@ pub struct Arguments {
 	#[structopt(long = "--branch", short, visible_alias = "br")]
 	pub branch: Option<String>,
 
-	/// dry run. aka don't run git commands
+	/// dry run. aka don't actually run the commands
 	#[structopt(long, short, visible_alias = "d")]
 	pub(crate) dry: Option<Option<bool>>,
-
-	/// if the branch is not on the hosted provider, call this
-	#[structopt(long, visible_alias = "nh")]
-	pub(crate) nohost: Option<Option<bool>>,
 
 	/// don't follow the commit template specified and just use $1+
 	#[structopt(long, short)]
@@ -56,13 +52,6 @@ pub struct VerboseResponse {
 impl Arguments {
 	pub fn dry(&self) -> bool {
 		match self.dry {
-			None => false,
-			Some(None) => true,
-			Some(Some(a)) => a,
-		}
-	}
-	pub fn nohost(&self) -> bool {
-		match self.nohost {
 			None => false,
 			Some(None) => true,
 			Some(Some(a)) => a,
@@ -148,7 +137,6 @@ mod tests {
 			rc_path: PathBuf::new(),
 			branch: Some(String::new()),
 			dry: Some(Some(false)),
-			nohost: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
@@ -190,7 +178,6 @@ mod tests {
 				rc_path: PathBuf::new(),
 				branch: Some(String::new()),
 				dry: Some(Some(false)),
-				nohost: Some(Some(false)),
 				raw: Some(Some(false)),
 				no_verify: Some(Some(false)),
 				verbose: Some(Some(false)),
