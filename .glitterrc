@@ -11,7 +11,8 @@
                 "refactor",
                 "docs",
                 "void",
-                "deps"
+                "deps",
+                "ci"
             ]
         }
     ],
