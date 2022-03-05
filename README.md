@@ -15,8 +15,6 @@ Git tooling of the future
 </h3>
 <h1></h1>
 
-![Alt](https://repobeats.axiom.co/api/embed/94616a17e7b0081aad0b1634999ac54c23bd5e5c.svg "Repobeats analytics image")
-
 ## ❯ 👀 Features
 - Config files (with defaults!)
 - Fast
@@ -175,3 +173,5 @@ If you need help, you can make a discussion, and if you find a bug, please make 
 Installation errors are to go in issues.
 
 Hope Glitter helps you!
+
+![Alt](https://repobeats.axiom.co/api/embed/94616a17e7b0081aad0b1634999ac54c23bd5e5c.svg "Repobeats analytics image")
