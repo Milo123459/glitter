@@ -22,10 +22,6 @@ pub struct Arguments {
 	)]
 	pub rc_path: std::path::PathBuf,
 
-	/// branch to use. if the branch is not on the hosted repo use --nohost
-	#[structopt(long = "--branch", short, visible_alias = "br")]
-	pub branch: Option<String>,
-
 	/// dry run. aka don't actually run the commands
 	#[structopt(long, short, visible_alias = "d")]
 	pub(crate) dry: Option<Option<bool>>,
@@ -135,7 +131,6 @@ mod tests {
 				"c".to_string(),
 			],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -176,7 +171,6 @@ mod tests {
 					"c".to_string(),
 				],
 				rc_path: PathBuf::new(),
-				branch: Some(String::new()),
 				dry: Some(Some(false)),
 				raw: Some(Some(false)),
 				no_verify: Some(Some(false)),

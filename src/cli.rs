@@ -153,7 +153,6 @@ pub fn push(
 	config: GlitterRc,
 	args: Arguments,
 	dry: bool,
-	branch: Option<String>,
 	raw: bool,
 	no_verify: bool,
 	verbose: bool,
@@ -278,9 +277,6 @@ pub fn push(
 		)),
 	);
 	let mut args = vec!["pull", "origin"];
-	if let Some(br) = &branch {
-		args.push(&*br);
-	}
 	args.push(current_branch.split('\n').next().unwrap());
 
 	if no_verify {
@@ -299,10 +295,6 @@ pub fn push(
 	);
 
 	let mut args = vec!["push", "origin"];
-
-	if let Some(br) = &branch {
-		args.push(&*br);
-	}
 	args.push(current_branch.split('\n').next().unwrap());
 
 	if no_verify {
@@ -448,7 +440,6 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let raw_mode = args.raw();
 	let no_verify = args.no_verify();
 	let verbose = args.verbose();
-	let branch = args.clone().branch;
 	let verbose = if verbose.provided {
 		verbose.value
 	} else {
@@ -456,7 +447,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	};
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, branch, raw_mode, no_verify, verbose)?,
+		"push" => push(config, args, dry, raw_mode, no_verify, verbose)?,
 		"action" => action(patterns)?,
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry, verbose)?,
@@ -639,7 +630,6 @@ mod tests {
 				"c".to_string(),
 			],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -674,7 +664,6 @@ mod tests {
 				"c".to_string(),
 			],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -707,7 +696,6 @@ mod tests {
 			action: "push".to_string(),
 			arguments: vec!["test".to_string(), "a".to_string()],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -718,7 +706,6 @@ mod tests {
 			action: "push".to_string(),
 			arguments: vec!["test".to_string()],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -763,7 +750,6 @@ mod tests {
 			action: "push".to_string(),
 			arguments: vec!["test".to_string(), "a".to_string()],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -794,7 +780,6 @@ mod tests {
 			action: "push".to_string(),
 			arguments: vec!["feat".to_string(), "test".to_string(), "tests".to_string()],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -845,7 +830,6 @@ mod tests {
 				"c".to_string(),
 			],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -877,7 +861,6 @@ mod tests {
 				"c".to_string(),
 			],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
@@ -909,7 +892,6 @@ mod tests {
 				"c".to_string(),
 			],
 			rc_path: PathBuf::new(),
-			branch: Some(String::new()),
 			dry: Some(Some(false)),
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),

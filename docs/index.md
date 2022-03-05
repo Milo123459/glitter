@@ -41,18 +41,7 @@ CustomTaskOptions {
 Suggestions are to be put in issues or discussions.
 
 # Examples
-
-Push to a seperate branch:
-
-```
-glitter --branch branch-name -- push arguments..
-```
-or, push to a fresh branch (that is not on the hosted repo):
-```
-glitter -- --branch branch-name --nohost -- push arguments..
-```
-
 Dry run:
 ```
-glitter -- --dry -- push arguments..
+glitter push ... -d
 ```
