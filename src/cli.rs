@@ -176,21 +176,6 @@ pub fn push(
 			.stdout,
 	)
 	.unwrap();
-	if dry {
-		println!(
-			"{} {} {}",
-			"Dry run.".yellow(),
-			"Won't".yellow().underline(),
-			"execute git commands or glitter hooks.".yellow()
-		);
-	}
-	if config.hooks.is_some() && config.hooks.clone().unwrap().is_empty() && no_verify {
-		println!(
-			"{} Redundant usage of {}. There are no Glitter hooks in this project",
-			"Warn".yellow(),
-			"no-verify".bold()
-		)
-	}
 	let mut _result = String::new();
 	if !raw {
 		_result = get_commit_message(&config, &args)?;
@@ -210,19 +195,25 @@ pub fn push(
 			&raw_args,
 		)?
 	}
+	let mut warnings: Vec<String> = Vec::new();
+	if no_verify {
+		warnings.push("(no-verify)".yellow().to_string());
+	}
+	if dry {
+		warnings.push("(dry-run)".yellow().to_string());
+	}
+	if config.__default.is_some() {
+		warnings.push("(default-config)".yellow().to_string())
+	}
 	println!(
-		"Commit message: {}{}",
+		"Commit message: {} {}",
 		format_args!(
 			"{}{}{}",
 			"`".green(),
 			_result.underline().green(),
 			"`".green()
 		),
-		if no_verify {
-			" (no-verify)".yellow().to_string()
-		} else {
-			String::from("")
-		}
+		warnings.join(" ")
 	);
 	// if they abort the process (cmd+c / ctrl+c), this will error and stop
 	// if they press enter the command will then start executing git commands
@@ -332,14 +323,16 @@ pub fn push(
 	);
 
 	let end = get_current_epoch();
-	println!(
-		"Completed in {}",
-		ms::ms!(
-			(end - start).try_into().expect("Couldn't convert type"),
-			true
-		)
-		.green()
-	);
+	if !dry {
+		println!(
+			"Completed in {}",
+			ms::ms!(
+				(end - start).try_into().expect("Couldn't convert type"),
+				true
+			)
+			.green()
+		);
+	}
 
 	Ok(())
 }
@@ -399,11 +392,8 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool, verbose: bool) -> anyho
 					exec_cmds = v;
 				};
 				if dry {
-					println!(
-						"{} {} {}",
-						"Dry run.".yellow(),
-						"Won't".yellow().underline(),
-						"execute commands specified.".yellow()
+					println!("{}",
+						"(dry-run)".yellow()
 					);
 				}
 
@@ -448,12 +438,7 @@ pub fn cc(config: GlitterRc, args: Arguments, dry: bool, verbose: bool) -> anyho
 
 pub fn undo(dry: bool, verbose: bool) -> anyhow::Result<()> {
 	if dry {
-		println!(
-			"{} {} {}",
-			"Dry run.".yellow(),
-			"Won't".yellow().underline(),
-			"execute git commands.".yellow()
-		);
+		println!("{}", "(dry-run)".yellow());
 	}
 	run_cmd("git", vec!["reset", "--soft", "HEAD~1"], dry, verbose, None);
 	Ok(())
@@ -464,7 +449,6 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let dry = args.dry();
 	let nohost = args.nohost();
 	let raw_mode = args.raw();
-	let is_default = config.__default.is_some();
 	let no_verify = args.no_verify();
 	let verbose = args.verbose();
 	let branch = args.clone().branch;
@@ -473,10 +457,6 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	} else {
 		config.verbose.unwrap_or(false)
 	};
-
-	if is_default {
-		println!("{} Using default config", "Warn".yellow())
-	}
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
 		"push" => push(config, args, dry, branch, nohost, raw_mode, no_verify, verbose)?,
@@ -493,10 +473,8 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 				};
 				if dry {
 					println!(
-						"{} {} {}",
-						"Dry run.".yellow(),
-						"Won't".yellow().underline(),
-						"execute commands specified.".yellow()
+						"{}",
+						"(dry-run)".yellow(),
 					);
 				}
 
@@ -575,7 +553,7 @@ fn run_cmd(
 			.stdout(std::process::Stdio::piped())
 			.output()
 			.unwrap();
-		if output.status.success() {
+		if output.status.success() && !dry {
 			spinner.text(format!(
 				"{} {}",
 				text,
@@ -629,17 +607,7 @@ fn run_cmd(
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
 	} else {
-		spinner.text(format!(
-			"{} {}",
-			text,
-			ms::ms!(
-				(get_current_epoch() - start)
-					.try_into()
-					.expect("MS conversion didn't work."),
-				true
-			)
-			.truecolor(54, 60, 71)
-		));
+		spinner.text(text);
 		spinner.done();
 	}
 }
