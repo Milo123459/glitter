@@ -74,7 +74,7 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Setup | Cache Cargo
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: |
             ~/.cargo/registry
