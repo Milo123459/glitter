@@ -210,21 +210,27 @@ pub fn push(
 			&raw_args,
 		)?
 	}
+	println!(
+		"Commit message: {}{}",
+		format_args!(
+			"{}{}{}",
+			"`".green(),
+			_result.underline().green(),
+			"`".green()
+		),
+		if no_verify {
+			" (no-verify)".yellow().to_string()
+		} else {
+			String::from("")
+		}
+	);
+	// if they abort the process (cmd+c / ctrl+c), this will error and stop
+	// if they press enter the command will then start executing git commands
 	if !dry {
-		println!(
-			"Commit message: {}",
-			format_args!(
-				"{}{}{}",
-				"`".green(),
-				_result.underline().green(),
-				"`".green()
-			)
-		);
-		// if they abort the process (cmd+c / ctrl+c), this will error and stop
-		// if they press enter the command will then start executing git commands
 		let mut temp = String::new();
 		stdin().read_line(&mut temp)?;
 	}
+
 	if let Some(fetch) = config.fetch {
 		if fetch {
 			run_cmd("git", vec!["fetch"], dry, verbose, None);
