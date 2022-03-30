@@ -9,6 +9,7 @@ use std::path::Path;
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 use terminal_spinners::{SpinnerBuilder, DOTS};
+use std::fs::write;
 
 // this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
@@ -19,6 +20,29 @@ macro_rules! match_patterns {
       }
     }
   }
+
+fn create_default_config() {
+	// Create a new file called .glitterrc and write a cahracter in it
+	write(".glitterrc", r#"{
+	"commit_message": "$1: $2+",
+	"commit_message_arguments": [
+		{
+			"argument": 1,
+			"case": "sentence",
+			"type_enums": [
+				"New",
+				"Fix",
+				"Feature",
+				"Deps",
+				"Refactor",
+				"Cleanup"
+			]
+		}
+	],
+	"custom_tasks": [],
+	"hooks": []
+}"#).unwrap();
+}
 
 fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<String> {
 	let splitted = config.commit_message.split('$').skip(1);
@@ -452,6 +476,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry, verbose)?,
 		"undo" => undo(dry, verbose)?,
+		"init" => create_default_config(),
 		_ => {
 				let mut cmds: Vec<CustomTaskOptions> = vec![];
 				let mut exec_cmds: Vec<CustomTaskOptions> = vec![];
