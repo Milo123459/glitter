@@ -204,7 +204,10 @@ pub fn push(
 		warnings.push("(default-config)".yellow().to_string())
 	}
 	if raw {
-		warnings.push("(no-commit-template)".yellow().to_string())
+		warnings.push("(raw-commit-message)".yellow().to_string())
+	}
+	if verbose {
+		warnings.push("(verbose)".yellow().to_string())
 	}
 	println!(
 		"Commit message: {} {}",
