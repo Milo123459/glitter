@@ -203,6 +203,9 @@ pub fn push(
 	if config.__default.is_some() {
 		warnings.push("(default-config)".yellow().to_string())
 	}
+	if raw {
+		warnings.push("(no-commit-template)".yellow().to_string())
+	}
 	println!(
 		"Commit message: {} {}",
 		format_args!(
