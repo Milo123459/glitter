@@ -164,7 +164,6 @@ pub fn push(
 			format!("{} This is not a git repository.", "Fatal".red()),
 		)));
 	}
-	let start = get_current_epoch();
 	let current_branch = String::from_utf8(
 		Command::new("git")
 			.arg("branch")
@@ -225,6 +224,8 @@ pub fn push(
 		let mut temp = String::new();
 		stdin().read_line(&mut temp)?;
 	}
+
+	let start = get_current_epoch();
 
 	if let Some(fetch) = config.fetch {
 		if fetch {
