@@ -106,7 +106,7 @@ jobs:
           name: ${{ matrix.name }}
           path: ${{ matrix.name }}
 
-  # Create GitHub release with Rust build targets and release notes
+  # Create GitHub release with Rust build targets
   github_release:
     name: Create GitHub Release
     needs: github_build
