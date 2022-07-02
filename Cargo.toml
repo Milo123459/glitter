@@ -9,7 +9,7 @@ include = ["src/**/*", "LICENSE", "README.md"]
 serde_json = "1.0.78"
 serde = { version = "1.0.136", features = ["derive"] }
 structopt = "0.3.26"
-anyhow = "1.0.56"
+anyhow = "1.0.58"
 fancy-regex = "0.8.0"
 Inflector = { version = "0.11.4", default-features = false }
 colored = "2.0.0"
