@@ -50,7 +50,8 @@ mod tests {
 						"refactor".to_string(),
 						"docs".to_string(),
 						"void".to_string(),
-						"deps".to_string()
+						"deps".to_string(),
+						"ci".to_string()
 					])
 				}]),
 				fetch: None,
