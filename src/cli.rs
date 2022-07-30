@@ -519,7 +519,7 @@ fn run_cmd(
 ) {
 	let start = get_current_epoch();
 	let text = if let Some(msg) = spinner_message {
-		format!("{} {}", "$".green().bold(), msg)
+		format!("{}{}", "$".green().bold(), msg)
 	} else {
 		format!(
 			"{} {} {}",
@@ -546,6 +546,7 @@ fn run_cmd(
 			.output()
 			.unwrap();
 		if output.status.success() && !dry {
+			std::thread::sleep(std::time::Duration::from_secs(2));
 			spinner.success(
 				format!(
 					"{} {}",
