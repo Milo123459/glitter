@@ -7,15 +7,15 @@ include = ["src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
 serde_json = "1.0.82"
-serde = { version = "1.0.138", features = ["derive"] }
+serde = { version = "1.0.140", features = ["derive"] }
 structopt = "0.3.26"
 anyhow = "1.0.58"
 fancy-regex = "0.10.0"
 Inflector = { version = "0.11.4", default-features = false }
 colored = "2.0.0"
 which = "4.2.5"
-terminal-spinners = "0.3.2"
 ms = "0.1.1"
+spinoff = "0.5.2"
 
 [profile.release]
 lto = "fat"

@@ -3,12 +3,12 @@ use colored::*;
 use fancy_regex::Regex;
 use inflector::Inflector;
 use ms::*;
+use spinoff::{Spinner, Spinners};
 use std::convert::TryInto;
 use std::io::{stdin, Error};
 use std::path::Path;
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
-use terminal_spinners::{SpinnerBuilder, DOTS};
 
 // this is a macro that will return the patterns in match's
 macro_rules! match_patterns {
@@ -528,15 +528,12 @@ fn run_cmd(
 			&args.join(" ")
 		)
 	};
-	let spinner = SpinnerBuilder::new()
-		.spinner(&DOTS)
-		.text(format!(" {}", text)) // we add a space so that it doesn't make the text on top of the dots
-		.start();
+	let spinner = Spinner::new(Spinners::Dots, text.clone(), None);
 
 	if !dry {
 		let cmd_path_result = which::which(command_name);
 		if cmd_path_result.is_err() {
-			spinner.error();
+			spinner.fail("Cannot find binary");
 			println!("{} Cannot find binary `{}`", "Fatal".red(), command_name);
 			std::process::exit(1);
 		}
@@ -549,18 +546,20 @@ fn run_cmd(
 			.output()
 			.unwrap();
 		if output.status.success() && !dry {
-			spinner.text(format!(
-				"{} {}",
-				text,
-				ms::ms!(
-					(get_current_epoch() - start)
-						.try_into()
-						.expect("MS conversion didn't work."),
-					true
+			spinner.success(
+				format!(
+					"{} {}",
+					text,
+					ms::ms!(
+						(get_current_epoch() - start)
+							.try_into()
+							.expect("MS conversion didn't work."),
+						true
+					)
+					.truecolor(79, 88, 109)
 				)
-				.truecolor(79, 88, 109)
-			));
-			spinner.done();
+				.as_str(),
+			);
 		} else {
 			if let Some(p) = args.first() {
 				if p == &"pull"
@@ -569,24 +568,26 @@ fn run_cmd(
 						|| String::from_utf8_lossy(&output.stderr)
 							.contains("fatal: couldn't find remote ref"))
 				{
-					spinner.text(format!(
-						"{} {} {}",
-						text,
-						ms::ms!(
-							(get_current_epoch() - start)
-								.try_into()
-								.expect("MS conversion didn't work."),
-							true
+					spinner.warn(
+						format!(
+							"{} {} {}",
+							text,
+							ms::ms!(
+								(get_current_epoch() - start)
+									.try_into()
+									.expect("MS conversion didn't work."),
+								true
+							)
+							.truecolor(79, 88, 109),
+							"| This branch does not exist on the remote repository."
+								.truecolor(79, 88, 109)
 						)
-						.truecolor(79, 88, 109),
-						"| This branch does not exist on the remote repository."
-							.truecolor(79, 88, 109)
-					));
-					spinner.warn();
+						.as_str(),
+					);
 					return;
 				}
 			}
-			spinner.error();
+			spinner.fail("Command failed to run");
 			println!(
 				"{} Command \"{} {}\" failed to run.",
 				"Fatal".red(),
@@ -602,8 +603,7 @@ fn run_cmd(
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
 	} else {
-		spinner.text(text);
-		spinner.done();
+		spinner.success(text.as_str());
 	}
 }
 
