@@ -603,6 +603,7 @@ fn run_cmd(
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
 	} else {
+		std::thread::sleep(std::time::Duration::from_secs(2));
 		spinner.success(text.as_str());
 	}
 }
