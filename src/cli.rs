@@ -519,7 +519,15 @@ fn run_cmd(
 ) {
 	let start = get_current_epoch();
 	let text = if let Some(msg) = spinner_message {
-		format!("{}{}", "$".green().bold(), msg)
+		format!(
+			"{}{}",
+			"$".green().bold(),
+			if msg.starts_with(' ') {
+				msg.to_string()
+			} else {
+				format!(" {}", msg)
+			}
+		)
 	} else {
 		format!(
 			"{} {} {}",
