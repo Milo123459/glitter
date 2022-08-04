@@ -546,7 +546,6 @@ fn run_cmd(
 			.output()
 			.unwrap();
 		if output.status.success() && !dry {
-			std::thread::sleep(std::time::Duration::from_secs(2));
 			spinner.success(
 				format!(
 					"{} {}",
@@ -589,12 +588,6 @@ fn run_cmd(
 				}
 			}
 			spinner.fail("Command failed to run");
-			println!(
-				"{} Command \"{} {}\" failed to run.",
-				"Fatal".red(),
-				command_name,
-				&args.join(" ")
-			);
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 			println!("{}", String::from_utf8_lossy(&output.stderr));
 
@@ -604,7 +597,6 @@ fn run_cmd(
 			println!("{}", String::from_utf8_lossy(&output.stdout));
 		}
 	} else {
-		std::thread::sleep(std::time::Duration::from_secs(2));
 		spinner.success(text.as_str());
 	}
 }
