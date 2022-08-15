@@ -5,34 +5,18 @@
 <h3 align="center">
 Git tooling of the future
 <h3>
-<h3 align="center">
-    <a href="https://github.com/Milo123459/glitter/releases">
-    <img src="https://img.shields.io/github/downloads/Milo123459/glitter/total.svg">
-    </a>
-    <img src="https://img.shields.io/github/stars/Milo123459/glitter">
-    <img src="https://tokei.rs/b1/github/Milo123459/glitter?category=lines">
-    <img src="https://www.codefactor.io/repository/github/milo123459/glitter/badge">
-</h3>
 <h1></h1>
 
-## ❯ 👀 Features
-- Config files (with defaults!)
-- Fast
-- Easy to use
-- Friendly errors (how to fix them included!)
-- Multi branch support (defaults to the one you are on!)
-- Beautiful, as if it just rolled in **Glitter**!
+## Features
+- Config files
+- Simple errors
 - Glitter Hooks (Git hooks natively built into Glitter)
 
-## ❯ 📚 Documentation
+## What is glitter?
 
-For proper docs, see [here](/docs/index.md), this also includes examples.
+Glitter is a tool for generating and structuring commit messages via arguments passed to the tool. It allows you to configure it extensively and easily.
 
-## ❯ ✋ What, how and why should you use Glitter?
-
-Glitter is a wrapper for Git essentially, allowing you to compress multiple commands into one. Glitter is written in **rust** which not only makes it fast but also efficient. We simply parse your `.glitterrc` (if it exists, if not it'll use the default config) and run a few git commands under the hood. Why? Simplicity. If you maintain a project, this is probably the thing for you.
-
-## ❯ 😀 Installation
+## Installation
 
 **Windows**
 
@@ -59,67 +43,69 @@ To build from source run this:
 *You need rust installed!*
 
 ```
-git clone https://github.com/Milo123459/glitter
-cd glitter
-cargo install --path .
+cargo install --git https://github.com/Milo123459/glitter
 ```
 
-To update:
+## Get started
 
-```
-cd glitter
-git pull
-cargo install --path .
-```
+A simple example when using glitter would be a 2 step commit template. For example, something to turn `glitter push hello world` into `hello: world`.
 
-**🛑 Please report any bug reports in issues, I'll try and respond ASAP**
+This example covers using type_enums, hooks and how glitters argument system works.
 
-## ❯ 🎉 Get started
+Firstly, we can define our `.glitterrc` to support 2 or more arguments.
 
-We're so happy to see your interest in Glitter! Leave a ⭐ if you like Glitter!
-
-Firstly, lets create a `.glitterrc` - the configuration file for Glitter.
-
-The glitterrc is basically JSON but a fancy extension. If we want to make it so it automatically templates our commit message we can do it like so:
 ```json
 {
-    "commit_message": "$1($2): $3+"
+    "commit_message": "$1: $2+"
 }
 ```
-and you can use it like so: `glitter push chore deps bump deps`, this would produce the message `chore(deps): bump deps`. As you probably understand, $ is the prefix of arguments, ie, you can do $1 for the first argument, $2 for the second, etc. The + basically means all arguments after the one you specify will be placed there. Lets say we want it to be `chore(Deps): bump deps` and it formats with that case. How? Easy. Lets add another key to our file:
+This snippet alone now allows us to do `glitter push hello world ...` and would template to `hello: world ...`. $1 is the first argument passed to glitter push, $2+ means that the second argument and anything after that should take it's place.
+
+Now, lets take a look at `type_enums` - a way of validating arguments.
+
+Let's add a `commit_message_arguments` to our `.glitterrc`:
 ```json
 {
-    ...
-    "commit_message_arguments": []
-}
-```
-inside this key we can then add the argument to configure, in this case, the 2nd one, let's add that.
-```json
-{
-    ...
+    "commit_message": "$1: $2+",
     "commit_message_arguments": [
         {
-            "argument": 2
+            "argument": 1,
+            "case": "lower",
+            "type_enums": [
+                "hello",
+                "hey"
+            ]
         }
     ]
 }
 ```
-and then, to configure the case, add the key `case` and watch the magic!
+This snippet now means that the first argument will:
+- be converted to lower-case
+- matched against the type_enums, and if it does not match, it fails
+
+For example, `glitter push hello world` would work, but `glitter push hi world` would not, because `hi` isn't in the type enums.
+
+Next: glitter hooks.
+
+Glitter hooks are like git hooks, but always run before `git add` - it allows you to run/make your own hooks with ease.
+
+An example of a hook to run `cargo fmt` would look like this:
 ```json
 {
-    ...
-    "commit_message_arguments": [
+    "custom_tasks": [
         {
-            "argument": 2,
-            "case": "pascal"
-        }
-    ]
-
+            "name": "fmt",
+            "execute": [
+                "cargo fmt"
+            ]
+        },
+    ],
+    "hooks": ["fmt"]
 }
 ```
-Running `glitter push chore deps bump deps` would then give us the commit message of `chore(Deps): bump deps` 🎉!
+This defines a custom task, which can also be run via `glitter cc` (for example `glitter cc fmt` would run `cargo fmt`). We then have a hooks array which specifies a custom task to run before running `git add`.
 
-## ❯ 📷 FAQ
+## FAQ
 
 > Does **"this hello"** count as 1 or 2 arguments?
 
@@ -131,31 +117,7 @@ Running `glitter push chore deps bump deps` would then give us the commit messag
 4: you
 ```
 
-> Why is it fast sometimes but not the next?
-
-**That's reliant on your internet connection.** - We are just running git commands under the hood. Git will be the thing taking it's sweet time.
-
-## ❯ 🎣 Glitter Hooks
-
-Glitter Hooks are Git hooks without the bash. Here is an example of how we can run `cargo fmt` before committing to this codebase.
-
-```json
-{
-    ...
-    "custom_tasks": [
-        {
-            "name": "fmt",
-            "execute": ["cargo fmt"]
-        }
-    ],
-    "hooks": ["fmt"]
-}
-```
-
-From this, before we commit, `cargo fmt` will be executed. You can add more commands to be executed by simply adding another command to the `fmt` field, or, adding another custom_task and referencing that in hooks.
-If you need help, you can make a discussion, and if you find a bug, please make a bug report!
-
-## ❯ 📣 Available Cases
+## Available Cases
 
 - lower
 - upper
@@ -167,11 +129,5 @@ If you need help, you can make a discussion, and if you find a bug, please make 
 - title
 - class
 - pascal
-
-.. got a suggestion? Please make a discussion.
-
-Installation errors are to go in issues.
-
-Hope Glitter helps you!
 
 ![Alt](https://repobeats.axiom.co/api/embed/94616a17e7b0081aad0b1634999ac54c23bd5e5c.svg "Repobeats analytics image")
