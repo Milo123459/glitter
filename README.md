@@ -48,7 +48,7 @@ cargo install --git https://github.com/Milo123459/glitter
 
 ## Get started
 
-A simple example when using glitter would be a 2 step commit template. For example, something to turn `glitter push hello world` into `hello: world`.
+A simple example when using glitter would be a 3 step commit template. For example, something to turn `glitter push fix docs fix typo` into `fix: docs: fix typo`.
 
 This example covers using type_enums, hooks and how glitters argument system works.
 
@@ -56,24 +56,24 @@ Firstly, we can define our `.glitterrc` to support 2 or more arguments.
 
 ```json
 {
-    "commit_message": "$1: $2+"
+    "commit_message": "$1: $2: $3+"
 }
 ```
-This snippet alone now allows us to do `glitter push hello world ...` and would template to `hello: world ...`. $1 is the first argument passed to glitter push, $2+ means that the second argument and anything after that should take it's place.
+This snippet alone now allows us to do `glitter push fix docs fix typo` and would template to `fix: docs: fix typo`. $1 is the first argument passed to glitter push, $2 is the second, and $3+ means that the third argument and anything after that should take it's place.
 
 Now, lets take a look at `type_enums` - a way of validating arguments.
 
 Let's add a `commit_message_arguments` to our `.glitterrc`:
 ```json
 {
-    "commit_message": "$1: $2+",
+    "commit_message": "$1: $2: $3+",
     "commit_message_arguments": [
         {
             "argument": 1,
             "case": "lower",
             "type_enums": [
-                "hello",
-                "hey"
+                "fix",
+                "feat"
             ]
         }
     ]
@@ -83,7 +83,7 @@ This snippet now means that the first argument will:
 - be converted to lower-case
 - matched against the type_enums, and if it does not match, it fails
 
-For example, `glitter push hello world` would work, but `glitter push hi world` would not, because `hi` isn't in the type enums.
+For example, `glitter push fix docs fix typo` would work, but `glitter push chore docs fix typo` would not, because `chore` isn't in the type enums.
 
 Next: glitter hooks.
 
