@@ -5,7 +5,7 @@ fn commit_msg() -> String {
 	"$1+".to_string()
 }
 
-#[derive(Serialize, Deserialize, Debug, StructOpt, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, StructOpt, Eq, PartialEq, Clone)]
 pub struct Arguments {
 	/// type of action. run the `action` / `actions` action to see available actions.
 	pub action: String,
@@ -85,21 +85,21 @@ impl Arguments {
 	}
 }
 
-#[derive(Deserialize, Debug, PartialEq)]
+#[derive(Deserialize, Debug, Eq, PartialEq)]
 pub struct CommitMessageArguments {
 	pub argument: i32,
 	pub case: Option<String>,
 	pub type_enums: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Debug, PartialEq, Clone)]
+#[derive(Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CustomTaskOptions {
 	pub name: String,
 	pub execute: Option<Vec<String>>,
 }
 
 // main struct for the GlitterRc with defaults
-#[derive(Deserialize, Debug, PartialEq)]
+#[derive(Deserialize, Debug, Eq, PartialEq)]
 pub struct GlitterRc {
 	#[serde(default = "commit_msg")]
 	pub commit_message: String,
