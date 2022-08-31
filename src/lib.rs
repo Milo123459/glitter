@@ -33,6 +33,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		run(args).unwrap();

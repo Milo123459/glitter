@@ -149,14 +149,15 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 }
 
 #[allow(clippy::too_many_arguments)]
-pub fn push(
+pub fn commit(
 	config: GlitterRc,
 	args: Arguments,
 	dry: bool,
 	raw: bool,
 	no_verify: bool,
 	verbose: bool,
-) -> anyhow::Result<()> {
+	no_add: bool,
+) -> anyhow::Result<(u128, String)> {
 	let is_git_folder = Path::new(".git").exists();
 	if !is_git_folder {
 		return Err(anyhow::Error::new(Error::new(
@@ -207,6 +208,9 @@ pub fn push(
 	}
 	if verbose {
 		warnings.push("(verbose)".yellow().to_string())
+	}
+	if no_add {
+		warnings.push("(no_add)".yellow().to_string())
 	}
 	println!(
 		"Commit message: {} {}",
@@ -267,7 +271,9 @@ pub fn push(
 			}
 		}
 	}
-	run_cmd("git", vec!["add", "."], dry, verbose, None);
+	if !no_add {
+		run_cmd("git", vec!["add", "."], dry, verbose, None);
+	}
 	let mut commit_args = vec!["commit", "-m", &_result];
 	if no_verify {
 		commit_args.push("--no-verify")
@@ -283,6 +289,22 @@ pub fn push(
 			if no_verify { " --no-verify" } else { "" }
 		)),
 	);
+
+	Ok((start, current_branch))
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn push(
+	config: GlitterRc,
+	args: Arguments,
+	dry: bool,
+	raw: bool,
+	no_verify: bool,
+	verbose: bool,
+	no_add: bool,
+) -> anyhow::Result<()> {
+	let (start, current_branch) = commit(config, args, dry, raw, no_verify, verbose, no_add)?;
+
 	let mut args = vec!["pull", "origin"];
 	args.push(current_branch.split('\n').next().unwrap());
 
@@ -447,6 +469,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let raw_mode = args.raw();
 	let no_verify = args.no_verify();
 	let verbose = args.verbose();
+	let no_add = args.no_add();
 	let verbose = if verbose.provided {
 		verbose.value
 	} else {
@@ -454,7 +477,8 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	};
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, raw_mode, no_verify, verbose)?,
+		"push" => push(config, args, dry, raw_mode, no_verify, verbose, no_add)?,
+		"commit" => commit(config, args, dry, raw_mode, no_verify, verbose, no_add).map(|_|())?,
 		"action" => action(patterns)?,
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry, verbose)?,
@@ -643,6 +667,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -677,6 +702,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -709,6 +735,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let args_2 = Arguments {
@@ -719,6 +746,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -763,6 +791,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -793,6 +822,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -843,6 +873,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -874,6 +905,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
@@ -905,6 +937,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			no_add: Some(Some(false)),
 		};
 
 		let config = GlitterRc {
