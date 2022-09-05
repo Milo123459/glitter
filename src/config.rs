@@ -37,6 +37,10 @@ pub struct Arguments {
 	/// verbose mode: log the output of all commands run
 	#[structopt(long = "verbose", short = "v")]
 	pub(crate) verbose: Option<Option<bool>>,
+
+	/// don't ask for confirmation
+	#[structopt(long, short = "y")]
+	pub(crate) yes: Option<Option<bool>>,
 }
 
 pub struct VerboseResponse {
@@ -81,6 +85,13 @@ impl Arguments {
 				provided: true,
 				value: a,
 			},
+		}
+	}
+	pub fn yes(&self) -> bool {
+		match self.yes {
+			None => false,
+			Some(None) => true,
+			Some(Some(a)) => a,
 		}
 	}
 }
@@ -135,6 +146,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -175,6 +187,7 @@ mod tests {
 				raw: Some(Some(false)),
 				no_verify: Some(Some(false)),
 				verbose: Some(Some(false)),
+				yes: None
 			}
 		);
 		assert_eq!(

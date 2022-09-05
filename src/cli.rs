@@ -156,6 +156,7 @@ pub fn push(
 	raw: bool,
 	no_verify: bool,
 	verbose: bool,
+	yes: bool,
 ) -> anyhow::Result<()> {
 	let is_git_folder = Path::new(".git").exists();
 	if !is_git_folder {
@@ -208,6 +209,9 @@ pub fn push(
 	if verbose {
 		warnings.push("(verbose)".yellow().to_string())
 	}
+	if yes {
+		warnings.push("(yes)".yellow().to_string())
+	}
 	println!(
 		"Commit message: {} {}",
 		format_args!(
@@ -220,7 +224,7 @@ pub fn push(
 	);
 	// if they abort the process (cmd+c / ctrl+c), this will error and stop
 	// if they press enter the command will then start executing git commands
-	if !dry {
+	if !dry && !yes {
 		let mut temp = String::new();
 		stdin().read_line(&mut temp)?;
 	}
@@ -447,6 +451,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	let raw_mode = args.raw();
 	let no_verify = args.no_verify();
 	let verbose = args.verbose();
+	let yes = args.yes();
 	let verbose = if verbose.provided {
 		verbose.value
 	} else {
@@ -454,7 +459,7 @@ pub fn match_cmds(args: Arguments, config: GlitterRc) -> anyhow::Result<()> {
 	};
 	// custom macro for the patterns command
 	match_patterns! { &*cmd.to_lowercase(), patterns,
-		"push" => push(config, args, dry, raw_mode, no_verify, verbose)?,
+		"push" => push(config, args, dry, raw_mode, no_verify, verbose, yes)?,
 		"action" => action(patterns)?,
 		"actions" => action(patterns)?,
 		"cc" => cc(config, args, dry, verbose)?,
@@ -643,6 +648,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -677,6 +683,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -709,6 +716,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let args_2 = Arguments {
@@ -719,6 +727,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -763,6 +772,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -793,6 +803,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -843,6 +854,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -874,6 +886,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
@@ -905,6 +918,7 @@ mod tests {
 			raw: Some(Some(false)),
 			no_verify: Some(Some(false)),
 			verbose: Some(Some(false)),
+			yes: None,
 		};
 
 		let config = GlitterRc {
