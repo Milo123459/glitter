@@ -1,6 +1,6 @@
 [package]
 name = "glitter"
-version = "1.6.2"
+version = "1.6.3"
 authors = ["Milo123459"]
 edition = "2021"
 include = ["src/**/*", "LICENSE", "README.md"]
