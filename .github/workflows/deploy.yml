@@ -74,7 +74,7 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Setup | Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
 
       - name: Build | Build
         uses: actions-rs/cargo@v1.0.3
