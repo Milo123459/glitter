@@ -295,9 +295,9 @@ dependencies = [
 
 [[package]]
 name = "spinoff"
-version = "0.5.3"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c139aa6a2b4ed01ef761dfd593eb5b02218dbf35a3a0f10940b72f5bfe70426"
+checksum = "5f9b68a7e9486c3a186c0322f54d8e1b5c3017b079fd487bc4acb6c62e6b2ae7"
 dependencies = [
  "colored",
  "maplit",
