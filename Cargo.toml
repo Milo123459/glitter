@@ -13,7 +13,7 @@ anyhow = "1.0.64"
 fancy-regex = "0.10.0"
 Inflector = { version = "0.11.4", default-features = false }
 colored = "2.0.0"
-which = "4.3.0"
+which = "4.4.0"
 ms = "0.1.1"
 spinoff = "0.5.3"
 
