@@ -3,7 +3,7 @@ use colored::*;
 use fancy_regex::Regex;
 use inflector::Inflector;
 use ms::*;
-use spinoff::{Spinner, Spinners};
+use spinoff::{spinners, Spinner};
 use std::convert::TryInto;
 use std::io::{stdin, Error};
 use std::path::Path;
@@ -57,7 +57,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 				)));
 			}
 
-			let mut val_ = (&args.arguments[idx]).clone();
+			let mut val_ = args.arguments[idx].clone();
 			if let Some(ref args_) = config.commit_message_arguments {
 				for arg in args_.iter().as_ref() {
 					if arg.argument == ((idx + 1) as i32) {
@@ -541,7 +541,7 @@ fn run_cmd(
 			&args.join(" ")
 		)
 	};
-	let spinner = Spinner::new(Spinners::Dots, text.clone(), None);
+	let spinner = Spinner::new(spinners::Dots, text.clone(), None);
 
 	if !dry {
 		let cmd_path_result = which::which(command_name);
