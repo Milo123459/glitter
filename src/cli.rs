@@ -157,7 +157,7 @@ pub fn push(
 	verbose: bool,
 	yes: bool,
 ) -> anyhow::Result<()> {
-	let is_git_folder = Command::new("git").arg("status").status()?.code().unwrap() == 0;
+	let is_git_folder = Command::new("git").arg("status").output()?.status.success();
 	if !is_git_folder {
 		return Err(anyhow::Error::new(Error::new(
 			std::io::ErrorKind::InvalidInput,
