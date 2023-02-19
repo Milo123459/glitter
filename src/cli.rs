@@ -6,7 +6,6 @@ use ms::*;
 use spinoff::{spinners, Spinner};
 use std::convert::TryInto;
 use std::io::{stdin, Error};
-use std::path::Path;
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -158,7 +157,7 @@ pub fn push(
 	verbose: bool,
 	yes: bool,
 ) -> anyhow::Result<()> {
-	let is_git_folder = Path::new(".git").exists();
+	let is_git_folder = Command::new("git").arg("status").status()?.code().unwrap() == 0;
 	if !is_git_folder {
 		return Err(anyhow::Error::new(Error::new(
 			std::io::ErrorKind::InvalidInput,
