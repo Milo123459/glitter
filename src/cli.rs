@@ -540,7 +540,7 @@ fn run_cmd(
 			&args.join(" ")
 		)
 	};
-	let spinner = Spinner::new(spinners::Dots, text.clone(), None);
+	let mut spinner = Spinner::new(spinners::Dots, text.clone(), None);
 
 	if !dry {
 		let cmd_path_result = which::which(command_name);
