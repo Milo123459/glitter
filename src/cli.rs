@@ -133,8 +133,7 @@ fn get_commit_message(config: &GlitterRc, args: &Arguments) -> anyhow::Result<St
 					// when we replace, the value changes, so we rerun the logic
 					.captures_iter(&res)
 					.collect::<Vec<_>>()
-					// we dont use the loop index as since the new value excludes the previous match we dont need to
-					.get(0)
+					.first()
 					.unwrap()
 					.as_ref()
 					.unwrap()
@@ -540,7 +539,7 @@ fn run_cmd(
 			&args.join(" ")
 		)
 	};
-	let spinner = Spinner::new(spinners::Dots, text.clone(), None);
+	let mut spinner = Spinner::new(spinners::Dots, text.clone(), None);
 
 	if !dry {
 		let cmd_path_result = which::which(command_name);
