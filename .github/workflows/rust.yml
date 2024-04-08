@@ -27,7 +27,7 @@ jobs:
           components: rustfmt
 
       - name: Setup | Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
 
       - name: Build | Format
         uses: actions-rs/cargo@v1
